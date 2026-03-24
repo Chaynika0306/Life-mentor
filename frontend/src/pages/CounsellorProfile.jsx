@@ -19,127 +19,173 @@ function CounsellorProfile() {
   }, []);
 
   const handleChange = (e) => {
-    setProfile({
-      ...profile,
-      [e.target.name]: e.target.value,
-    });
+    setProfile({ ...profile, [e.target.name]: e.target.value });
   };
 
-  // ✅ UPDATED SAVE FUNCTION (FormData for image upload)
   const handleSave = async () => {
     const formData = new FormData();
-
     formData.append("name", profile.name);
     formData.append("email", profile.email);
     formData.append("specialization", profile.specialization);
     formData.append("experience", profile.experience);
     formData.append("fees", profile.fees);
     formData.append("bio", profile.bio);
-
-    if (certificateTitle) {
-      formData.append("certificateTitle", certificateTitle);
-    }
-
-    if (certificateImage) {
-      formData.append("certificateImage", certificateImage);
-    }
+    if (certificateTitle) formData.append("certificateTitle", certificateTitle);
+    if (certificateImage) formData.append("certificateImage", certificateImage);
 
     await fetch("http://localhost:5000/api/profile", {
       method: "PUT",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+      headers: { Authorization: `Bearer ${token}` },
       body: formData,
     });
 
     setEditMode(false);
-    window.location.reload(); // simple refresh to show new certificate
+    window.location.reload();
   };
 
   if (!profile) {
     return (
-      <div className="container">
-        <h2>Loading...</h2>
+      <div className="dashboard-page">
+        <div className="dashboard-box"><h2>Loading...</h2></div>
       </div>
     );
   }
 
   return (
     <PageWrapper>
-      <div className="container">
-        <h1>Counsellor Profile</h1>
+      <div className="profile-page">
 
-        <div className="card">
+        {/* HEADER CARD */}
+        <div className="profile-header-card">
+          <div className="profile-avatar">
+            {profile.name?.charAt(0).toUpperCase()}
+          </div>
+          <div className="profile-header-info">
+            <h1>{profile.name}</h1>
+            <p className="profile-specialization">🎓 {profile.specialization}</p>
+            <div className="profile-badges">
+              <span className="badge">⏱ {profile.experience}</span>
+              <span className="badge">💰 ₹{profile.fees} / session</span>
+            </div>
+          </div>
+        </div>
+
+        {/* MAIN CONTENT */}
+        <div className="profile-body">
 
           {editMode ? (
-            <>
-              <input name="name" value={profile.name} onChange={handleChange} />
-              <input name="email" value={profile.email} onChange={handleChange} />
-              <input name="specialization" value={profile.specialization} onChange={handleChange} />
-              <input name="experience" value={profile.experience} onChange={handleChange} />
-              <input name="fees" value={profile.fees} onChange={handleChange} />
-              <textarea name="bio" value={profile.bio} onChange={handleChange} />
+            <div className="profile-edit-card">
+              <h2>Edit Profile</h2>
 
-              {/* ✅ Certificate Section */}
-              <h3>Add Certificate</h3>
+              <div className="profile-form-grid">
+                <div className="form-group">
+                  <label>Name</label>
+                  <input name="name" value={profile.name} onChange={handleChange} />
+                </div>
+                <div className="form-group">
+                  <label>Email</label>
+                  <input name="email" value={profile.email} onChange={handleChange} />
+                </div>
+                <div className="form-group">
+                  <label>Specialization</label>
+                  <input name="specialization" value={profile.specialization} onChange={handleChange} />
+                </div>
+                <div className="form-group">
+                  <label>Experience</label>
+                  <input name="experience" value={profile.experience} onChange={handleChange} />
+                </div>
+                <div className="form-group">
+                  <label>Fees (₹)</label>
+                  <input name="fees" value={profile.fees} onChange={handleChange} />
+                </div>
+              </div>
 
-              <input
-                type="text"
-                placeholder="Certificate Title"
-                value={certificateTitle}
-                onChange={(e) => setCertificateTitle(e.target.value)}
-              />
+              <div className="form-group full-width">
+                <label>Bio</label>
+                <textarea name="bio" value={profile.bio} onChange={handleChange} rows={4} />
+              </div>
 
-              <input
-                type="file"
-                onChange={(e) => setCertificateImage(e.target.files[0])}
-              />
+              <div className="profile-cert-section">
+                <h3>Add Certificate</h3>
+                <div className="cert-inputs">
+                  <input
+                    type="text"
+                    placeholder="Certificate Title"
+                    value={certificateTitle}
+                    onChange={(e) => setCertificateTitle(e.target.value)}
+                  />
+                  <input
+                    type="file"
+                    onChange={(e) => setCertificateImage(e.target.files[0])}
+                  />
+                </div>
+              </div>
 
-              <button className="primary-btn" onClick={handleSave}>
-                Save Changes
-              </button>
-            </>
+              <div className="profile-edit-actions">
+                <button className="primary-btn" onClick={handleSave}>💾 Save Changes</button>
+                <button className="cancel-btn" onClick={() => setEditMode(false)}>Cancel</button>
+              </div>
+            </div>
+
           ) : (
-            <>
-              <p><strong>Name:</strong> {profile.name}</p>
-              <p><strong>Specialization:</strong> {profile.specialization}</p>
-              <p><strong>Experience:</strong> {profile.experience}</p>
-              <p><strong>Fees:</strong> ₹{profile.fees}</p>
-              <p><strong>Bio:</strong> {profile.bio}</p>
+            <div className="profile-view-card">
 
-              {/* ✅ Certificate Display */}
-              {profile.certificates && profile.certificates.length > 0 && (
-                <>
-                  <h3 style={{ marginTop: "20px" }}>Certificates</h3>
+              {/* BIO */}
+              <div className="profile-section">
+                <h2>About</h2>
+                <p className="profile-bio">{profile.bio}</p>
+              </div>
 
-                  {profile.certificates.map((cert, index) => (
-                    <div key={index} style={{ marginBottom: "15px" }}>
-                      <p>{cert.title}</p>
-                      <img
-                        src={`http://localhost:5000/uploads/${cert.image}`}
-                        alt="certificate"
-                        style={{
-                          width: "100%",
-                          borderRadius: "10px",
-                          marginTop: "8px",
-                        }}
-                      />
-                    </div>
-                  ))}
-                </>
+              {/* DETAILS */}
+              <div className="profile-section">
+                <h2>Details</h2>
+                <div className="profile-details-grid">
+                  <div className="detail-item">
+                    <span className="detail-label">Specialization</span>
+                    <span className="detail-value">{profile.specialization}</span>
+                  </div>
+                  <div className="detail-item">
+                    <span className="detail-label">Experience</span>
+                    <span className="detail-value">{profile.experience}</span>
+                  </div>
+                  <div className="detail-item">
+                    <span className="detail-label">Session Fee</span>
+                    <span className="detail-value">₹{profile.fees}</span>
+                  </div>
+                  <div className="detail-item">
+                    <span className="detail-label">Email</span>
+                    <span className="detail-value">{profile.email}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* CERTIFICATES */}
+              {profile.certificates?.length > 0 && (
+                <div className="profile-section">
+                  <h2>Certificates</h2>
+                  <div className="cert-grid">
+                    {profile.certificates.map((cert, index) => (
+                      <div key={index} className="cert-card">
+                        <p className="cert-title">{cert.title}</p>
+                        <img
+                          src={`http://localhost:5000/uploads/${cert.image}`}
+                          alt="certificate"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
               )}
 
+              {/* EDIT BUTTON */}
               {(user?.role === "admin" || user?.role === "counsellor") && (
-                <button
-                  className="primary-btn"
-                  onClick={() => setEditMode(true)}
-                >
-                  Edit Profile
+                <button className="primary-btn" onClick={() => setEditMode(true)}>
+                  ✏️ Edit Profile
                 </button>
               )}
-            </>
-          )}
 
+            </div>
+          )}
         </div>
       </div>
     </PageWrapper>

@@ -29,7 +29,7 @@ function Login() {
 
       if (res.ok) {
         setAuth(data.token, data.user);
-        navigate("/"); // ✅ Book Session page
+        navigate("/dashboard-home");
       } else {
         alert(data.message);
       }
@@ -39,36 +39,38 @@ function Login() {
   };
 
   return (
-    <div className="container">
-      <h1>Life Mentor</h1>
-      <h2>Login</h2>
+    <div className="auth-page">
+      <div className="auth-box">
+        <h1>Life Mentor</h1>
+        <h2>Login</h2>
 
-      <form className="auth-form" onSubmit={handleSubmit}>
-        <input
-          type="email"
-          name="email"
-          placeholder="Email"
-          onChange={handleChange}
-          required
-        />
+        <form className="auth-form" onSubmit={handleSubmit}>
+          <input
+            type="email"
+            name="email"
+            placeholder="Email"
+            onChange={handleChange}
+            required
+          />
 
-        <input
-          type="password"
-          name="password"
-          placeholder="Password"
-          onChange={handleChange}
-          required
-        />
+          <input
+            type="password"
+            name="password"
+            placeholder="Password"
+            onChange={handleChange}
+            required
+          />
 
-        <button type="submit" className="primary-btn">Login</button>
-      </form>
+          <button type="submit" className="primary-btn">Login</button>
+        </form>
 
-      <p className="auth-switch">
-        Don’t have an account?
-        <span className="auth-link" onClick={() => navigate("/signup")}>
-          Signup
-        </span>
-      </p>
+        <p className="auth-switch">
+          Don't have an account?
+          <span className="auth-link" onClick={() => navigate("/signup")}>
+            Signup
+          </span>
+        </p>
+      </div>
     </div>
   );
 }

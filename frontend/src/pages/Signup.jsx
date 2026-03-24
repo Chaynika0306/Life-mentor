@@ -30,7 +30,7 @@ function Signup() {
 
       if (res.ok) {
         setAuth(data.token, data.user);
-        navigate("/"); // ✅ Book Session page
+        navigate("/");
       } else {
         alert(data.message);
       }
@@ -40,44 +40,46 @@ function Signup() {
   };
 
   return (
-    <div className="container">
-      <h1>Life Mentor</h1>
-      <h2>Signup</h2>
+    <div className="auth-page">
+      <div className="auth-box">
+        <h1>Life Mentor</h1>
+        <h2>Signup</h2>
 
-      <form className="auth-form" onSubmit={handleSubmit}>
-        <input
-          type="text"
-          name="name"
-          placeholder="Full Name"
-          onChange={handleChange}
-          required
-        />
+        <form className="auth-form" onSubmit={handleSubmit}>
+          <input
+            type="text"
+            name="name"
+            placeholder="Full Name"
+            onChange={handleChange}
+            required
+          />
 
-        <input
-          type="email"
-          name="email"
-          placeholder="Email"
-          onChange={handleChange}
-          required
-        />
+          <input
+            type="email"
+            name="email"
+            placeholder="Email"
+            onChange={handleChange}
+            required
+          />
 
-        <input
-          type="password"
-          name="password"
-          placeholder="Password"
-          onChange={handleChange}
-          required
-        />
+          <input
+            type="password"
+            name="password"
+            placeholder="Password"
+            onChange={handleChange}
+            required
+          />
 
-        <button type="submit" className="primary-btn">Create Account</button>
-      </form>
+          <button type="submit" className="primary-btn">Create Account</button>
+        </form>
 
-      <p className="auth-switch">
-        Already have an account?
-        <span className="auth-link" onClick={() => navigate("/login")}>
-          Login
-        </span>
-      </p>
+        <p className="auth-switch">
+          Already have an account?
+          <span className="auth-link" onClick={() => navigate("/login")}>
+            Login
+          </span>
+        </p>
+      </div>
     </div>
   );
 }

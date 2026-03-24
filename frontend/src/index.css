@@ -24,9 +24,15 @@ a:hover {
 
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
+  padding: 0;
+  width: 100%;           /* ← was missing */
   min-width: 320px;
+  min-height: 100vh;
+  /* REMOVED: display:flex and place-items:center — these shrink the body */
+}
+
+#root {
+  width: 100%;           /* ← forces root div to full width */
   min-height: 100vh;
 }
 
