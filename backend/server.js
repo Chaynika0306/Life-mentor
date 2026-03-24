@@ -18,7 +18,7 @@ const app = express();
 // CORS
 app.use(
   cors({
-    origin: ["http://localhost:5173","http://localhost:5174"],
+    origin: "https://life-mentor-beryl.vercel.app",
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
   })
