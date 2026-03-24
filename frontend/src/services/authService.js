@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:5000/api/auth";
+const API_URL = "https://life-mentor-backend.onrender.com/api/auth";
 
 export const signupUser = async (userData) => {
   const res = await fetch(`${API_URL}/signup`, {

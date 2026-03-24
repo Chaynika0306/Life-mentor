@@ -8,7 +8,7 @@ function Ratings() {
   const [ratings, setRatings] = useState([]);
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/ratings", {
+    fetch("https://life-mentor-backend.onrender.com/api/ratings", {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => res.json())

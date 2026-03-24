@@ -15,7 +15,7 @@ function ClientHistory() {
   }, []);
 
   const fetchAppointments = async () => {
-    const res = await fetch("http://localhost:5000/api/appointments/my", {
+    const res = await fetch("https://life-mentor-backend.onrender.com/api/appointments/my", {
       headers: { Authorization: `Bearer ${token}` },
     });
     const data = await res.json();

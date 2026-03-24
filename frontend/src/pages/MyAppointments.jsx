@@ -21,7 +21,7 @@ function MyAppointments() {
   const fetchAppointments = async () => {
     try {
       const res = await fetch(
-        "http://localhost:5000/api/appointments/my",
+        "https://life-mentor-backend.onrender.com/api/appointments/my",
         {
           headers: {
             Authorization: `Bearer ${token}`,

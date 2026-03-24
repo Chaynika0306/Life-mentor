@@ -12,7 +12,7 @@ function Dashboard() {
 
   const fetchAppointments = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/appointments", {
+      const res = await fetch("https://life-mentor-backend.onrender.com/api/appointments", {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (res.status === 401 || res.status === 403) {
@@ -40,7 +40,7 @@ function Dashboard() {
   const handleDelete = async (id) => {
     if (!window.confirm("Delete this appointment?")) return;
     try {
-      const res = await fetch(`http://localhost:5000/api/appointments/${id}`, {
+      const res = await fetch(`https://life-mentor-backend.onrender.com/api/appointments/${id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -53,7 +53,7 @@ function Dashboard() {
 
   const handleConfirm = async (id) => {
     try {
-      const res = await fetch(`http://localhost:5000/api/appointments/${id}`, {
+      const res = await fetch(`https://life-mentor-backend.onrender.com/api/appointments/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

@@ -30,7 +30,7 @@ function BookSession() {
 
   useEffect(() => {
     if (!formData.date) return;
-    fetch(`http://localhost:5000/api/appointments/booked-slots?date=${formData.date}`, {
+    fetch(`https://life-mentor-backend.onrender.com/api/appointments/booked-slots?date=${formData.date}`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => res.json())
@@ -42,7 +42,7 @@ function BookSession() {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:5000/api/appointments", {
+      const res = await fetch("https://life-mentor-backend.onrender.com/api/appointments", {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify(formData),

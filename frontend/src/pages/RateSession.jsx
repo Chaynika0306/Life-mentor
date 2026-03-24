@@ -17,7 +17,7 @@ function RateSession() {
     e.preventDefault();
     if (rating === 0) { setMessage("Please select a star rating first!"); return; }
     try {
-      const res = await fetch("http://localhost:5000/api/ratings", {
+      const res = await fetch("https://life-mentor-backend.onrender.com/api/ratings", {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({ rating: Number(rating), review }),

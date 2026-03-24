@@ -21,11 +21,11 @@ function Admin() {
   }, []);
 
   const fetchData = async () => {
-    const usersRes = await fetch("http://localhost:5000/api/admin/users", {
+    const usersRes = await fetch("https://life-mentor-backend.onrender.com/api/admin/users", {
       headers: { Authorization: `Bearer ${token}` },
     });
 
-    const apptRes = await fetch("http://localhost:5000/api/admin/appointments", {
+    const apptRes = await fetch("https://life-mentor-backend.onrender.com/api/admin/appointments", {
       headers: { Authorization: `Bearer ${token}` },
     });
 
