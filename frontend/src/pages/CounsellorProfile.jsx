@@ -13,7 +13,7 @@ function CounsellorProfile() {
   const [certificateImage, setCertificateImage] = useState(null);
 
   useEffect(() => {
-    fetch("https://life-mentor-backend.onrender.com/api/profile")
+    fetch("http://localhost:5000/api/profile")
       .then((res) => res.json())
       .then((data) => setProfile(data));
   }, []);
@@ -33,7 +33,7 @@ function CounsellorProfile() {
     if (certificateTitle) formData.append("certificateTitle", certificateTitle);
     if (certificateImage) formData.append("certificateImage", certificateImage);
 
-    await fetch("https://life-mentor-backend.onrender.com/api/profile", {
+    await fetch("http://localhost:5000/api/profile", {
       method: "PUT",
       headers: { Authorization: `Bearer ${token}` },
       body: formData,
@@ -168,7 +168,7 @@ function CounsellorProfile() {
                       <div key={index} className="cert-card">
                         <p className="cert-title">{cert.title}</p>
                         <img
-                          src={`https://life-mentor-backend.onrender.com/uploads/${cert.image}`}
+                          src={cert.image}
                           alt="certificate"
                         />
                       </div>
