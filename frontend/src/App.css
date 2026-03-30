@@ -32,48 +32,25 @@ body {
   position: fixed;
   top: 0;
   width: 100%;
-  z-index: 9999;                        /* ← raised from 1000 to 9999 */
+  z-index: 9999;
   box-shadow: 0 1px 8px rgba(0, 0, 0, 0.06);
-  pointer-events: all;                  /* ← force clicks to register */
-}
-
-.nav-links li {
   pointer-events: all;
-}
-
-.nav-links a,
-.nav-links a * {
-  pointer-events: all;
-  cursor: pointer;
-}
-
-/* Logo block (icon + text side by side) */
-.navbar-logo {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 10px;
-  line-height: 1.1;
-}
-
-.navbar-logo .logo-icon {
-  width: 36px;
-  height: 36px;
-}
-
-.navbar-logo .logo-text {
-  font-family: 'DM Sans', sans-serif;
-  font-size: 14px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  color: #2c3e35;
-  text-transform: uppercase;
+  flex-wrap: wrap;
 }
 
 .nav-links {
   display: flex;
   gap: 32px;
   list-style: none;
+  align-items: center;
+}
+
+.nav-links li { pointer-events: all; }
+
+.nav-links a,
+.nav-links a * {
+  pointer-events: all;
+  cursor: pointer;
 }
 
 .nav-links a {
@@ -84,8 +61,65 @@ body {
   transition: color 0.2s;
 }
 
-.nav-links a:hover {
-  color: #6aab99;
+.nav-links a:hover { color: #6aab99 !important; }
+
+/* ─── HAMBURGER ──────────────────────────────────────── */
+.hamburger {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  z-index: 10000;
+}
+
+.ham-line {
+  display: block;
+  width: 24px;
+  height: 2px;
+  background: #2c6e5a;
+  border-radius: 2px;
+  transition: all 0.3s ease;
+}
+
+.hamburger .ham-line.open:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+.hamburger .ham-line.open:nth-child(2) { opacity: 0; }
+.hamburger .ham-line.open:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
+}
+
+/* ─── MOBILE NAV ─────────────────────────────────────── */
+@media (max-width: 768px) {
+  .navbar { padding: 14px 20px; }
+
+  .hamburger { display: flex; }
+
+  .nav-links {
+    display: none;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0;
+    width: 100%;
+    background: #ffffff;
+    padding: 8px 0 16px;
+    border-top: 1px solid #e0f0eb;
+    margin-top: 8px;
+  }
+
+  .nav-links.nav-open { display: flex; }
+
+  .nav-links li { width: 100%; }
+
+  .nav-links a {
+    display: block;
+    padding: 12px 8px;
+    font-size: 15px !important;
+    border-bottom: 1px solid #f0f8f5;
+  }
 }
 
 /* ─── HERO ───────────────────────────────────────────── */
