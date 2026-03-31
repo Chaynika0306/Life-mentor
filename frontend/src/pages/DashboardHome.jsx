@@ -1,12 +1,14 @@
 import { useNavigate } from "react-router-dom";
 import { getToken, getUser, logout } from "../utils/auth";
 import PageWrapper from "../components/PageWrapper";
+import usePushNotification from "../utils/usePushNotification";
 import "../App.css";
 
 function DashboardHome() {
   const navigate = useNavigate();
   const token = getToken();
   const user = getUser();
+  usePushNotification(); // ← registers push notifications
 
   if (!token) {
     navigate("/login");

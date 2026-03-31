@@ -3,40 +3,29 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 
-// Routes
 const authRoutes = require("./routes/authRoutes");
 const counsellorRoutes = require("./routes/counsellorRoutes");
 const appointmentRoutes = require("./routes/appointmentRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const counsellorProfileRoutes = require("./routes/counsellorProfileRoutes");
 const ratingRoutes = require("./routes/ratingRoutes");
+const notificationRoutes = require("./routes/notificationRoutes");
 
 const app = express();
 
-/* ================= MIDDLEWARES ================= */
+app.use(cors({
+  origin: "https://life-mentor-beryl.vercel.app",
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  credentials: true,
+}));
 
-// CORS
-app.use(
-  cors({
-    origin: "https://life-mentor-beryl.vercel.app",
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    credentials: true,
-  })
-);
-
-// Body parser
 app.use(express.json());
-
-/* ================= DATABASE ================= */
 
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => console.log("✅ MongoDB Connected Successfully"))
   .catch((err) => console.log("❌ Mongo Error:", err.message));
 
-/* ================= ROUTES ================= */
-
-// Test route
 app.get("/api/lifementor", (req, res) => {
   res.json({
     name: "Life Mentor",
@@ -45,25 +34,19 @@ app.get("/api/lifementor", (req, res) => {
   });
 });
 
-// Auth routes (signup / login)
+// ✅ Return VAPID public key to frontend
+app.get("/api/vapid-public-key", (req, res) => {
+  res.json({ publicKey: process.env.VAPID_PUBLIC_KEY });
+});
+
 app.use("/api/auth", authRoutes);
-
-// Counsellor routes
 app.use("/api/counsellors", counsellorRoutes);
-
-// Appointment routes
 app.use("/api/appointments", appointmentRoutes);
-
-// Admin routes
 app.use("/api/admin", adminRoutes);
-
-// Counsellor Profile routes
 app.use("/api/profile", counsellorProfileRoutes);
-
 app.use("/uploads", express.static("uploads"));
-
 app.use("/api/ratings", ratingRoutes);
-/* ================= SERVER ================= */
+app.use("/api/notifications", notificationRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
