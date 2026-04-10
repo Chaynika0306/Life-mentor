@@ -13,6 +13,7 @@ import Ratings from "./pages/Ratings";
 import DashboardHome from "./pages/DashboardHome";
 import Services from "./pages/Services";
 import About from "./pages/About";
+import AICoach from "./pages/AICoach";
 
 import PrivateRoute from "./components/PrivateRoute";
 
@@ -31,6 +32,7 @@ function App() {
         {/* Main Pages */}
         <Route path="/services" element={<Services />} />
         <Route path="/about" element={<About />} />
+        <Route path="/ai-coach" element={<AICoach />} />
         <Route path="/profile" element={<CounsellorProfile />} />
 
         {/* Booking & History */}

@@ -32,6 +32,9 @@ function DashboardHome() {
             {/* CLIENT OPTIONS */}
             {user?.role === "client" && (
               <>
+                <button className="primary-btn" onClick={() => navigate("/ai-coach")}>
+                  🧠 AI Life Coach
+                </button>
                 <button className="primary-btn" onClick={() => navigate("/book-session")}>
                   📅 Book a Session
                 </button>
