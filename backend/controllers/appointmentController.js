@@ -144,3 +144,37 @@ exports.getBookedSlots = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
+// CLIENT CANCEL OWN APPOINTMENT
+exports.cancelAppointment = async (req, res) => {
+  try {
+    const appointment = await Appointment.findById(req.params.id);
+
+    if (!appointment) {
+      return res.status(404).json({ message: "Appointment not found" });
+    }
+
+    // Make sure the appointment belongs to this user
+    if (appointment.user.toString() !== req.user.id.toString()) {
+      return res.status(403).json({ message: "Not authorized to cancel this appointment" });
+    }
+
+    // Only allow cancellation of pending appointments
+    if (appointment.status === "Confirmed") {
+      return res.status(400).json({ message: "Confirmed appointments cannot be cancelled. Please contact your counsellor." });
+    }
+
+    await Appointment.findByIdAndDelete(req.params.id);
+
+    // Notify counsellor about cancellation
+    sendNotificationToCounsellor(
+      "❌ Appointment Cancelled",
+      `${appointment.clientName} has cancelled their session on ${appointment.date} at ${appointment.time}.`
+    );
+
+    res.json({ message: "Appointment cancelled successfully" });
+  } catch (error) {
+    console.error("CANCEL APPOINTMENT ERROR:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};

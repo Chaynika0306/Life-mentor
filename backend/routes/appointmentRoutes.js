@@ -7,27 +7,31 @@ const {
   getMyAppointments,
   deleteAppointment,
   updateAppointmentStatus,
-  getBookedSlots
+  getBookedSlots,
+  cancelAppointment,
 } = require("../controllers/appointmentController");
 
 const { protect, counsellorOnly } = require("../middleware/authMiddleware");
 
-// 🔒 Book appointment (logged in user)
+// Client: Book appointment
 router.post("/", protect, createAppointment);
 
-// 🔒 Client: Get MY appointments
+// Client: Get MY appointments
 router.get("/my", protect, getMyAppointments);
 
-// 🔒 Counsellor: Get ALL appointments
+// Client: Cancel own appointment
+router.delete("/cancel/:id", protect, cancelAppointment);
+
+// Counsellor: Get ALL appointments
 router.get("/", protect, counsellorOnly, getAppointments);
 
-// 🔒 Counsellor: Delete appointment
+// Counsellor: Delete appointment
 router.delete("/:id", protect, counsellorOnly, deleteAppointment);
 
-// 🔒 Counsellor: Update Status
+// Counsellor: Update Status
 router.put("/:id", protect, counsellorOnly, updateAppointmentStatus);
 
-// 🔒 Get booked slots by date
+// Get booked slots by date
 router.get("/booked-slots", protect, getBookedSlots);
 
 module.exports = router;
