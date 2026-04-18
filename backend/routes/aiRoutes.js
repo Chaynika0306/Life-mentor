@@ -6,75 +6,74 @@ const MoodEntry = require("../models/MoodEntry");
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-// POST /api/ai/checkin
 router.post("/checkin", protect, async (req, res) => {
   try {
     const { message } = req.body;
     const userId = req.user.id;
     const today = new Date().toISOString().split("T")[0];
 
-    if (!message) {
-      return res.status(400).json({ message: "Message is required" });
-    }
+    if (!message) return res.status(400).json({ message: "Message is required" });
 
-    const prompt = `
-You are a compassionate life mentor and emotional support assistant for a mental health counselling platform called "Life Mentor".
+    const prompt = `You are a compassionate life mentor on a mental health platform called Life Mentor.
 
-A user has shared how they are feeling today:
-"${message}"
+A user says: "${message}"
 
-Your job is to:
-1. Detect their mood (choose exactly one: happy, sad, stressed, anxious, neutral, overwhelmed, lonely)
-2. Provide warm emotional support (2-3 sentences, empathetic and kind)
-3. Suggest 1 simple daily habit (practical, achievable)
-4. Give 1 powerful affirmation (positive, present tense)
-5. Suggest 1 small achievable task for today
+Respond ONLY with this exact JSON (no markdown, no backticks, no extra text):
+{"mood":"stressed","support":"Your warm 2-3 sentence empathetic response here.","habit":"One simple daily habit suggestion.","affirmation":"One powerful positive affirmation.","task":"One small achievable task for today."}
 
 Rules:
+- mood must be exactly one of: happy, sad, stressed, anxious, neutral, overwhelmed, lonely
 - Never give medical advice
-- Always be warm, empathetic and non-judgmental
-- Keep responses concise and actionable
-- Respond ONLY with valid JSON, no extra text, no markdown backticks
+- Be warm and non-judgmental
+- Output ONLY the JSON object, nothing else`;
 
-Respond in this EXACT JSON format:
-{"mood":"stressed","support":"It is completely okay to feel stressed sometimes. You are doing your best and that is enough. Take a deep breath — you have got this.","habit":"Spend 5 minutes in deep breathing or meditation today.","affirmation":"I am calm, capable, and in control of my emotions.","task":"Write down 3 things you are grateful for right now."}
-`;
+    // Try multiple models in order
+    const models = ["gemini-1.5-flash", "gemini-1.5-pro", "gemini-pro"];
+    let text = null;
 
-    // Try gemini-1.5-flash first, fallback to gemini-pro
-    let text = "";
-    try {
-      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-      const result = await model.generateContent(prompt);
-      text = result.response.text();
-    } catch (modelErr) {
-      console.log("Trying fallback model...");
-      const model = genAI.getGenerativeModel({ model: "gemini-pro" });
-      const result = await model.generateContent(prompt);
-      text = result.response.text();
+    for (const modelName of models) {
+      try {
+        console.log(`Trying model: ${modelName}`);
+        const model = genAI.getGenerativeModel({ model: modelName });
+        const result = await model.generateContent(prompt);
+        text = result.response.text().trim();
+        console.log(`Success with model: ${modelName}`);
+        console.log(`Raw response: ${text.substring(0, 200)}`);
+        break;
+      } catch (modelErr) {
+        console.log(`Model ${modelName} failed:`, modelErr.message);
+      }
     }
 
-    // Clean response — remove any markdown backticks if present
-    const cleaned = text.replace(/```json|```/g, "").trim();
-
-    // Extract JSON
-    const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) {
-      console.error("Raw AI response:", text);
-      throw new Error("Could not parse AI response");
+    if (!text) {
+      return res.status(500).json({ message: "All AI models failed. Please check your GEMINI_API_KEY." });
     }
 
-    const aiData = JSON.parse(jsonMatch[0]);
+    // Clean response thoroughly
+    let cleaned = text
+      .replace(/```json/gi, "")
+      .replace(/```/g, "")
+      .replace(/^\s*[\r\n]/gm, "")
+      .trim();
 
-    // Validate required fields
-    const required = ["mood", "support", "habit", "affirmation", "task"];
-    for (const field of required) {
-      if (!aiData[field]) throw new Error(`Missing field: ${field}`);
+    // Extract JSON object
+    const start = cleaned.indexOf("{");
+    const end = cleaned.lastIndexOf("}");
+    if (start === -1 || end === -1) {
+      console.error("No JSON found in response:", cleaned);
+      return res.status(500).json({ message: "Could not parse AI response. Please try again." });
     }
 
-    // Validate mood value
+    const jsonStr = cleaned.substring(start, end + 1);
+    const aiData = JSON.parse(jsonStr);
+
+    // Validate fields
     const validMoods = ["happy", "sad", "stressed", "anxious", "neutral", "overwhelmed", "lonely"];
-    if (!validMoods.includes(aiData.mood)) {
-      aiData.mood = "neutral";
+    if (!validMoods.includes(aiData.mood)) aiData.mood = "neutral";
+
+    const required = ["mood", "support", "habit", "affirmation", "task"];
+    for (const f of required) {
+      if (!aiData[f]) aiData[f] = "Not available";
     }
 
     // Save to MongoDB
@@ -102,14 +101,10 @@ Respond in this EXACT JSON format:
 
   } catch (err) {
     console.error("AI checkin error:", err.message);
-    res.status(500).json({
-      message: "AI service error. Please try again in a moment.",
-      error: err.message,
-    });
+    res.status(500).json({ message: "AI error: " + err.message });
   }
 });
 
-// GET /api/ai/history
 router.get("/history", protect, async (req, res) => {
   try {
     const entries = await MoodEntry.find({ userId: req.user.id })
@@ -117,7 +112,6 @@ router.get("/history", protect, async (req, res) => {
       .limit(7);
     res.json(entries);
   } catch (err) {
-    console.error("History error:", err);
     res.status(500).json({ message: "Failed to fetch history" });
   }
 });

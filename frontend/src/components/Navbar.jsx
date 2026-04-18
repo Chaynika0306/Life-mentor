@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { getToken, logout } from "../utils/auth";
+import DarkModeToggle from "./DarkModeToggle";
 
 function Navbar() {
   const navigate = useNavigate();
@@ -8,20 +9,22 @@ function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const handleHome = () => {
-    navigate("/");
     setMenuOpen(false);
-    setTimeout(() => {
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }, 100);
+    if (token) {
+      // Logged in → go to dashboard
+      navigate("/dashboard-home");
+    } else {
+      // Not logged in → go to landing page top
+      navigate("/");
+      setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 100);
+    }
   };
 
   const handleLogout = () => {
     logout();
-    navigate("/");
     setMenuOpen(false);
-    setTimeout(() => {
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }, 100);
+    navigate("/");
+    setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 100);
   };
 
   const closeMenu = () => setMenuOpen(false);
@@ -40,18 +43,14 @@ function Navbar() {
           style={{ width: "42px", height: "42px", borderRadius: "8px", objectFit: "contain" }}
         />
         <span style={{
-          fontWeight: 700,
-          fontSize: "16px",
-          letterSpacing: "0.15em",
-          color: "#2c6e5a",
-          fontFamily: "'Lora', serif",
-          textTransform: "uppercase"
+          fontWeight: 700, fontSize: "16px", letterSpacing: "0.15em",
+          color: "#2c6e5a", fontFamily: "'Lora', serif", textTransform: "uppercase"
         }}>
           LIFE MENTOR
         </span>
       </div>
 
-      {/* HAMBURGER BUTTON — mobile only */}
+      {/* HAMBURGER */}
       <button
         className="hamburger"
         onClick={() => setMenuOpen(!menuOpen)}
@@ -65,34 +64,34 @@ function Navbar() {
       {/* NAV LINKS */}
       <ul className={`nav-links ${menuOpen ? "nav-open" : ""}`}>
 
+        {/* Home — smart navigation */}
         <li>
           <a onClick={handleHome} style={{ cursor: "pointer" }}>Home</a>
         </li>
+
+        {/* About Counsellor — always visible */}
         <li>
-          <Link to="/profile" onClick={closeMenu}>About Counsellor</Link>
+          <a onClick={() => { navigate("/profile"); closeMenu(); }} style={{ cursor: "pointer" }}>
+            About Counsellor
+          </a>
         </li>
 
+        {/* Logged in only */}
         {token && (
-          <>
-            <li>
-              <Link to="/rate-session" onClick={closeMenu}>⭐ Rate Session</Link>
-            </li>
-            <li>
-              <Link to="/my-appointments" onClick={closeMenu}>📅 My Appointments</Link>
-            </li>
-            <li>
-              <a
-                onClick={handleLogout}
-                style={{ cursor: "pointer", color: "#e05555", fontWeight: 600 }}
-              >
-                Logout
-              </a>
-            </li>
-          </>
+          <li>
+            <a
+              onClick={handleLogout}
+              style={{ cursor: "pointer", color: "#e05555", fontWeight: 600 }}
+            >
+              Logout
+            </a>
+          </li>
         )}
 
-      </ul>
+        {/* Dark mode toggle */}
+        <li><DarkModeToggle /></li>
 
+      </ul>
     </nav>
   );
 }

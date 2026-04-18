@@ -2724,3 +2724,171 @@ textarea {
   .resources-header { flex-direction: column; }
   .cal-slots-grid { grid-template-columns: repeat(2, 1fr); }
 }
+
+/* ─── DARK MODE TOGGLE BUTTON ────────────────────────── */
+.dark-toggle {
+  background: none;
+  border: 1.5px solid #d0e8e0;
+  border-radius: 20px;
+  padding: 6px 12px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.dark-toggle:hover {
+  background: #d8ede8;
+  border-color: #6aab99;
+}
+
+/* ─── SESSION NOTES BUTTON ───────────────────────────── */
+.notes-btn {
+  width: 100%;
+  padding: 9px;
+  margin-top: 8px;
+  background: transparent;
+  color: #6aab99;
+  border: 1.5px solid #6aab99;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.notes-btn:hover {
+  background: #6aab99;
+  color: white;
+}
+
+/* ─── DARK MODE ──────────────────────────────────────── */
+body.dark-mode {
+  background-color: #1a2a24 !important;
+  color: #d8ede8 !important;
+}
+
+body.dark-mode .navbar {
+  background: #1e3028 !important;
+  box-shadow: 0 1px 8px rgba(0,0,0,0.3);
+}
+
+body.dark-mode .nav-links a {
+  color: #a8d4c8 !important;
+}
+
+body.dark-mode .hero {
+  background-color: #1a2a24;
+}
+
+body.dark-mode .hero-text h1 { color: #7abfaf; }
+body.dark-mode .hero-text .quote { color: #88b4a6; }
+body.dark-mode .hero-desc { color: #90b8ae; }
+
+body.dark-mode .cta {
+  background: #1e3028 !important;
+}
+
+body.dark-mode .cta-card {
+  background: #2a4038 !important;
+  color: #c8ddd7 !important;
+}
+
+body.dark-mode .cta-main { color: #b8ddd4; }
+body.dark-mode .cta-sub { color: #88b4a6; }
+
+body.dark-mode .testimonials-section {
+  background: #1e3028 !important;
+}
+
+body.dark-mode .testimonial-card {
+  background: #2a4038 !important;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.3);
+}
+
+body.dark-mode .testimonial-text { color: #b8ddd4; }
+body.dark-mode .testimonial-name { color: #d8ede8; }
+
+body.dark-mode .blog {
+  background: #1a2a24;
+}
+
+body.dark-mode .blog-card {
+  filter: brightness(0.85);
+}
+
+body.dark-mode .faq-section {
+  background: #1a2a24 !important;
+}
+
+body.dark-mode .faq-item {
+  background: #1e3028 !important;
+  border-color: #2a4038;
+}
+
+body.dark-mode .faq-question { color: #d8ede8; }
+body.dark-mode .faq-answer p { color: #90b8ae; }
+
+body.dark-mode .footer {
+  background: #0e1a14 !important;
+}
+
+body.dark-mode .auth-box,
+body.dark-mode .dashboard-box {
+  background: #1e3028 !important;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+}
+
+body.dark-mode .auth-box h1,
+body.dark-mode .dashboard-box h1 { color: #7abfaf; }
+
+body.dark-mode .auth-box .auth-form input,
+body.dark-mode .form-group input,
+body.dark-mode .form-group textarea {
+  background: #2a4038 !important;
+  border-color: #3a6050 !important;
+  color: #d8ede8 !important;
+}
+
+body.dark-mode .appt-page { background: #1a2a24; }
+body.dark-mode .appt-card {
+  background: #1e3028 !important;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+
+body.dark-mode .services-page { background: #1a2a24; }
+body.dark-mode .service-card {
+  background: #1e3028 !important;
+}
+
+body.dark-mode .ai-page { background: #1a2a24; }
+body.dark-mode .ai-header { background: #1e3028 !important; border-bottom-color: #2a4038; }
+body.dark-mode .ai-bubble.ai { background: #1e3028 !important; }
+body.dark-mode .resources-page { background: #1a2a24; }
+body.dark-mode .resource-card { background: #1e3028 !important; }
+body.dark-mode .resource-card h3 { color: #d8ede8; }
+body.dark-mode .resource-card p { color: #90b8ae; }
+
+body.dark-mode .blog-modal,
+body.dark-mode .crisis-modal {
+  background: #1e3028 !important;
+}
+
+body.dark-mode .blog-modal h2,
+body.dark-mode .crisis-modal h2 { color: #7abfaf; }
+body.dark-mode .blog-modal p { color: #90b8ae; }
+
+body.dark-mode .dark-toggle {
+  border-color: #3a6050;
+  color: #d8ede8;
+}
+
+body.dark-mode .mood-chart-box,
+body.dark-mode .mood-stat-box,
+body.dark-mode .ai-history-card,
+body.dark-mode .cal-wrapper,
+body.dark-mode .rating-card,
+body.dark-mode .profile-header-card,
+body.dark-mode .profile-view-card {
+  background: #1e3028 !important;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}

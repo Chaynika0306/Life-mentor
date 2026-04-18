@@ -11,6 +11,7 @@ const counsellorProfileRoutes = require("./routes/counsellorProfileRoutes");
 const ratingRoutes = require("./routes/ratingRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
 const aiRoutes = require("./routes/aiRoutes");
+const sessionNoteRoutes = require("./routes/sessionNoteRoutes");
 
 const app = express();
 
@@ -49,6 +50,7 @@ app.use("/uploads", express.static("uploads"));
 app.use("/api/ratings", ratingRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/ai", aiRoutes);
+app.use("/api/session-notes", sessionNoteRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
