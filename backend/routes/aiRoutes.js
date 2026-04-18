@@ -1,10 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const { protect } = require("../middleware/authMiddleware");
-const { GoogleGenerativeAI } = require("@google/generative-ai");
 const MoodEntry = require("../models/MoodEntry");
-
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 router.post("/checkin", protect, async (req, res) => {
   try {
@@ -13,6 +10,19 @@ router.post("/checkin", protect, async (req, res) => {
     const today = new Date().toISOString().split("T")[0];
 
     if (!message) return res.status(400).json({ message: "Message is required" });
+
+    // Dynamically import to avoid startup crash if key missing
+    const { GoogleGenerativeAI } = require("@google/generative-ai");
+    
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      console.error("GEMINI_API_KEY is not set in environment variables!");
+      return res.status(500).json({ message: "AI service is not configured. Please contact support." });
+    }
+
+    console.log("GEMINI_API_KEY present:", apiKey.substring(0, 8) + "...");
+
+    const genAI = new GoogleGenerativeAI(apiKey);
 
     const prompt = `You are a compassionate life mentor on a mental health platform called Life Mentor.
 
@@ -25,11 +35,11 @@ Rules:
 - mood must be exactly one of: happy, sad, stressed, anxious, neutral, overwhelmed, lonely
 - Never give medical advice
 - Be warm and non-judgmental
-- Output ONLY the JSON object, nothing else`;
+- Output ONLY valid JSON, nothing else`;
 
-    // Try multiple models in order
     const models = ["gemini-1.5-flash", "gemini-1.5-pro", "gemini-pro"];
     let text = null;
+    let lastError = null;
 
     for (const modelName of models) {
       try {
@@ -37,55 +47,45 @@ Rules:
         const model = genAI.getGenerativeModel({ model: modelName });
         const result = await model.generateContent(prompt);
         text = result.response.text().trim();
-        console.log(`Success with model: ${modelName}`);
-        console.log(`Raw response: ${text.substring(0, 200)}`);
+        console.log(`✅ Success with: ${modelName}`);
+        console.log(`Response preview: ${text.substring(0, 100)}`);
         break;
-      } catch (modelErr) {
-        console.log(`Model ${modelName} failed:`, modelErr.message);
+      } catch (err) {
+        console.log(`❌ Model ${modelName} failed: ${err.message}`);
+        lastError = err.message;
       }
     }
 
     if (!text) {
-      return res.status(500).json({ message: "All AI models failed. Please check your GEMINI_API_KEY." });
+      return res.status(500).json({
+        message: `AI unavailable: ${lastError}. Please try again later.`
+      });
     }
 
-    // Clean response thoroughly
-    let cleaned = text
-      .replace(/```json/gi, "")
-      .replace(/```/g, "")
-      .replace(/^\s*[\r\n]/gm, "")
-      .trim();
-
-    // Extract JSON object
+    // Clean response
+    let cleaned = text.replace(/```json/gi, "").replace(/```/g, "").trim();
     const start = cleaned.indexOf("{");
     const end = cleaned.lastIndexOf("}");
+
     if (start === -1 || end === -1) {
-      console.error("No JSON found in response:", cleaned);
-      return res.status(500).json({ message: "Could not parse AI response. Please try again." });
+      console.error("No JSON in response:", cleaned);
+      return res.status(500).json({ message: "Could not understand AI response. Please try again." });
     }
 
-    const jsonStr = cleaned.substring(start, end + 1);
-    const aiData = JSON.parse(jsonStr);
+    const aiData = JSON.parse(cleaned.substring(start, end + 1));
 
-    // Validate fields
     const validMoods = ["happy", "sad", "stressed", "anxious", "neutral", "overwhelmed", "lonely"];
     if (!validMoods.includes(aiData.mood)) aiData.mood = "neutral";
 
-    const required = ["mood", "support", "habit", "affirmation", "task"];
-    for (const f of required) {
-      if (!aiData[f]) aiData[f] = "Not available";
-    }
-
-    // Save to MongoDB
     await MoodEntry.create({
       userId,
       message,
       mood: aiData.mood,
       aiResponse: {
-        support: aiData.support,
-        habit: aiData.habit,
-        affirmation: aiData.affirmation,
-        task: aiData.task,
+        support: aiData.support || "",
+        habit: aiData.habit || "",
+        affirmation: aiData.affirmation || "",
+        task: aiData.task || "",
       },
       date: today,
     });

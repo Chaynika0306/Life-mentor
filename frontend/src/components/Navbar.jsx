@@ -11,12 +11,9 @@ function Navbar() {
   const handleHome = () => {
     setMenuOpen(false);
     if (token) {
-      // Logged in → go to dashboard
-      navigate("/dashboard-home");
+      navigate("/dashboard-home");       // logged in → dashboard
     } else {
-      // Not logged in → go to landing page top
-      navigate("/");
-      setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 100);
+      navigate("/login");                // new user → login/signup
     }
   };
 
@@ -32,9 +29,9 @@ function Navbar() {
   return (
     <nav className="navbar">
 
-      {/* LOGO */}
+      {/* LOGO — always goes to landing page */}
       <div
-        onClick={handleHome}
+        onClick={() => { navigate("/"); window.scrollTo({ top: 0, behavior: "smooth" }); }}
         style={{ cursor: "pointer", display: "flex", alignItems: "center", gap: "10px" }}
       >
         <img
@@ -51,11 +48,7 @@ function Navbar() {
       </div>
 
       {/* HAMBURGER */}
-      <button
-        className="hamburger"
-        onClick={() => setMenuOpen(!menuOpen)}
-        aria-label="Toggle menu"
-      >
+      <button className="hamburger" onClick={() => setMenuOpen(!menuOpen)} aria-label="Toggle menu">
         <span className={`ham-line ${menuOpen ? "open" : ""}`} />
         <span className={`ham-line ${menuOpen ? "open" : ""}`} />
         <span className={`ham-line ${menuOpen ? "open" : ""}`} />
@@ -64,31 +57,24 @@ function Navbar() {
       {/* NAV LINKS */}
       <ul className={`nav-links ${menuOpen ? "nav-open" : ""}`}>
 
-        {/* Home — smart navigation */}
         <li>
           <a onClick={handleHome} style={{ cursor: "pointer" }}>Home</a>
         </li>
 
-        {/* About Counsellor — always visible */}
         <li>
           <a onClick={() => { navigate("/profile"); closeMenu(); }} style={{ cursor: "pointer" }}>
             About Counsellor
           </a>
         </li>
 
-        {/* Logged in only */}
         {token && (
           <li>
-            <a
-              onClick={handleLogout}
-              style={{ cursor: "pointer", color: "#e05555", fontWeight: 600 }}
-            >
+            <a onClick={handleLogout} style={{ cursor: "pointer", color: "#e05555", fontWeight: 600 }}>
               Logout
             </a>
           </li>
         )}
 
-        {/* Dark mode toggle */}
         <li><DarkModeToggle /></li>
 
       </ul>
