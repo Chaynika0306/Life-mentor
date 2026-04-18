@@ -35,6 +35,9 @@ function DashboardHome() {
                 <button className="primary-btn" onClick={() => navigate("/ai-coach")}>
                   🧠 AI Life Coach
                 </button>
+                <button className="primary-btn" onClick={() => navigate("/resources")}>
+                  📚 Resource Library
+                </button>
                 <button className="primary-btn" onClick={() => navigate("/book-session")}>
                   📅 Book a Session
                 </button>
