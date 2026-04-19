@@ -13,10 +13,8 @@ router.post("/checkin", protect, async (req, res) => {
 
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
-      return res.status(500).json({ message: "AI service not configured. Please contact support." });
+      return res.status(500).json({ message: "AI service not configured." });
     }
-
-    console.log("✅ GEMINI_API_KEY found, calling API...");
 
     const prompt = `You are a compassionate life mentor on a mental health platform called Life Mentor.
 
@@ -31,12 +29,12 @@ Rules:
 - Be warm and non-judgmental
 - Output ONLY valid JSON, nothing else`;
 
-    // Use fetch directly with correct API version (v1, not v1beta)
+    // Current working models with v1beta endpoint (Google AI Studio)
     const models = [
+      "gemini-2.5-flash-lite-preview-06-17",
+      "gemini-2.5-flash",
       "gemini-2.0-flash",
       "gemini-2.0-flash-lite",
-      "gemini-1.5-flash-latest",
-      "gemini-1.5-flash-8b",
     ];
 
     let text = null;
@@ -46,7 +44,7 @@ Rules:
       try {
         console.log(`Trying model: ${modelName}`);
         const response = await fetch(
-          `https://generativelanguage.googleapis.com/v1/models/${modelName}:generateContent?key=${apiKey}`,
+          `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -63,13 +61,15 @@ Rules:
         const data = await response.json();
 
         if (!response.ok) {
-          console.log(`❌ ${modelName} failed: ${JSON.stringify(data.error?.message)}`);
-          lastError = data.error?.message || "Unknown error";
+          const errMsg = data?.error?.message || "Unknown error";
+          console.log(`❌ ${modelName} failed: ${errMsg}`);
+          lastError = errMsg;
           continue;
         }
 
-        text = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
-        if (text) {
+        const candidate = data.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (candidate) {
+          text = candidate.trim();
           console.log(`✅ Success with: ${modelName}`);
           break;
         }
@@ -81,7 +81,7 @@ Rules:
 
     if (!text) {
       return res.status(500).json({
-        message: `AI unavailable right now. Please try again later. (${lastError})`
+        message: `AI unavailable right now. Please try again later.`
       });
     }
 
@@ -96,7 +96,6 @@ Rules:
     }
 
     const aiData = JSON.parse(cleaned.substring(start, end + 1));
-
     const validMoods = ["happy", "sad", "stressed", "anxious", "neutral", "overwhelmed", "lonely"];
     if (!validMoods.includes(aiData.mood)) aiData.mood = "neutral";
 

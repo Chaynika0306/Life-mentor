@@ -1,25 +1,18 @@
-const nodemailer = require("nodemailer");
+const { Resend } = require("resend");
+const resend = new Resend(process.env.RESEND_API_KEY);
 
-const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 587,
-  secure: false,        // TLS — NOT SSL (port 465 is blocked on Render)
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-  tls: {
-    rejectUnauthorized: false,
-  },
-});
-
-const sendEmail = async (to, subject, text) => {
-  await transporter.sendMail({
-    from: `"Life Mentor" <${process.env.EMAIL_USER}>`,
-    to,
-    subject,
-    text,
-  });
+const sendEmail = async (to, subject, text, html) => {
+  try {
+    const result = await resend.emails.send({
+      from: "Life Mentor <onboarding@resend.dev>",
+      to,
+      subject,
+      ...(html ? { html } : { text }),
+    });
+    console.log("✅ Email sent to:", to, result);
+  } catch (err) {
+    console.error("❌ Email error:", err.message);
+  }
 };
 
 module.exports = sendEmail;
