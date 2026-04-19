@@ -16,6 +16,8 @@ router.post("/checkin", protect, async (req, res) => {
       return res.status(500).json({ message: "AI service not configured." });
     }
 
+    console.log("✅ Calling Gemini API...");
+
     const prompt = `You are a compassionate life mentor on a mental health platform called Life Mentor.
 
 A user says: "${message}"
@@ -29,9 +31,8 @@ Rules:
 - Be warm and non-judgmental
 - Output ONLY valid JSON, nothing else`;
 
-    // Current working models with v1beta endpoint (Google AI Studio)
+    // These are the confirmed working models on v1beta in 2026
     const models = [
-      "gemini-2.5-flash-lite-preview-06-17",
       "gemini-2.5-flash",
       "gemini-2.0-flash",
       "gemini-2.0-flash-lite",
@@ -42,7 +43,8 @@ Rules:
 
     for (const modelName of models) {
       try {
-        console.log(`Trying model: ${modelName}`);
+        console.log(`Trying: ${modelName}`);
+
         const response = await fetch(
           `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`,
           {
@@ -52,7 +54,7 @@ Rules:
               contents: [{ parts: [{ text: prompt }] }],
               generationConfig: {
                 temperature: 0.7,
-                maxOutputTokens: 500,
+                maxOutputTokens: 400,
               },
             }),
           }
@@ -62,43 +64,50 @@ Rules:
 
         if (!response.ok) {
           const errMsg = data?.error?.message || "Unknown error";
-          console.log(`❌ ${modelName} failed: ${errMsg}`);
+          console.log(`❌ ${modelName}: ${errMsg}`);
           lastError = errMsg;
           continue;
         }
 
-        const candidate = data.candidates?.[0]?.content?.parts?.[0]?.text;
-        if (candidate) {
+        const candidate = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (candidate && candidate.trim()) {
           text = candidate.trim();
-          console.log(`✅ Success with: ${modelName}`);
+          console.log(`✅ Success: ${modelName}`);
           break;
         }
       } catch (err) {
-        console.log(`❌ ${modelName} fetch error: ${err.message}`);
+        console.log(`❌ ${modelName} error: ${err.message}`);
         lastError = err.message;
       }
     }
 
     if (!text) {
+      console.error("All models failed. Last error:", lastError);
       return res.status(500).json({
-        message: `AI unavailable right now. Please try again later.`
+        message: "AI is unavailable right now. Please try again in a few minutes."
       });
     }
 
-    // Clean and parse JSON
-    let cleaned = text.replace(/```json/gi, "").replace(/```/g, "").trim();
+    // Clean response — remove markdown if any
+    let cleaned = text
+      .replace(/```json/gi, "")
+      .replace(/```/g, "")
+      .trim();
+
     const start = cleaned.indexOf("{");
     const end = cleaned.lastIndexOf("}");
 
     if (start === -1 || end === -1) {
-      console.error("No JSON found:", cleaned);
-      return res.status(500).json({ message: "Could not parse AI response. Please try again." });
+      console.error("No JSON in response:", cleaned);
+      return res.status(500).json({ message: "Unexpected AI response. Please try again." });
     }
 
     const aiData = JSON.parse(cleaned.substring(start, end + 1));
+
     const validMoods = ["happy", "sad", "stressed", "anxious", "neutral", "overwhelmed", "lonely"];
     if (!validMoods.includes(aiData.mood)) aiData.mood = "neutral";
 
+    // Save to MongoDB
     await MoodEntry.create({
       userId,
       message,
@@ -123,7 +132,7 @@ Rules:
 
   } catch (err) {
     console.error("AI checkin error:", err.message);
-    res.status(500).json({ message: "AI error: " + err.message });
+    res.status(500).json({ message: "Server error: " + err.message });
   }
 });
 
