@@ -11,18 +11,12 @@ router.post("/checkin", protect, async (req, res) => {
 
     if (!message) return res.status(400).json({ message: "Message is required" });
 
-    // Dynamically import to avoid startup crash if key missing
-    const { GoogleGenerativeAI } = require("@google/generative-ai");
-    
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
-      console.error("GEMINI_API_KEY is not set in environment variables!");
-      return res.status(500).json({ message: "AI service is not configured. Please contact support." });
+      return res.status(500).json({ message: "AI service not configured. Please contact support." });
     }
 
-    console.log("GEMINI_API_KEY present:", apiKey.substring(0, 8) + "...");
-
-    const genAI = new GoogleGenerativeAI(apiKey);
+    console.log("✅ GEMINI_API_KEY found, calling API...");
 
     const prompt = `You are a compassionate life mentor on a mental health platform called Life Mentor.
 
@@ -37,39 +31,68 @@ Rules:
 - Be warm and non-judgmental
 - Output ONLY valid JSON, nothing else`;
 
-    const models = ["gemini-1.5-flash", "gemini-1.5-pro", "gemini-pro"];
+    // Use fetch directly with correct API version (v1, not v1beta)
+    const models = [
+      "gemini-2.0-flash",
+      "gemini-2.0-flash-lite",
+      "gemini-1.5-flash-latest",
+      "gemini-1.5-flash-8b",
+    ];
+
     let text = null;
     let lastError = null;
 
     for (const modelName of models) {
       try {
         console.log(`Trying model: ${modelName}`);
-        const model = genAI.getGenerativeModel({ model: modelName });
-        const result = await model.generateContent(prompt);
-        text = result.response.text().trim();
-        console.log(`✅ Success with: ${modelName}`);
-        console.log(`Response preview: ${text.substring(0, 100)}`);
-        break;
+        const response = await fetch(
+          `https://generativelanguage.googleapis.com/v1/models/${modelName}:generateContent?key=${apiKey}`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              contents: [{ parts: [{ text: prompt }] }],
+              generationConfig: {
+                temperature: 0.7,
+                maxOutputTokens: 500,
+              },
+            }),
+          }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          console.log(`❌ ${modelName} failed: ${JSON.stringify(data.error?.message)}`);
+          lastError = data.error?.message || "Unknown error";
+          continue;
+        }
+
+        text = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+        if (text) {
+          console.log(`✅ Success with: ${modelName}`);
+          break;
+        }
       } catch (err) {
-        console.log(`❌ Model ${modelName} failed: ${err.message}`);
+        console.log(`❌ ${modelName} fetch error: ${err.message}`);
         lastError = err.message;
       }
     }
 
     if (!text) {
       return res.status(500).json({
-        message: `AI unavailable: ${lastError}. Please try again later.`
+        message: `AI unavailable right now. Please try again later. (${lastError})`
       });
     }
 
-    // Clean response
+    // Clean and parse JSON
     let cleaned = text.replace(/```json/gi, "").replace(/```/g, "").trim();
     const start = cleaned.indexOf("{");
     const end = cleaned.lastIndexOf("}");
 
     if (start === -1 || end === -1) {
-      console.error("No JSON in response:", cleaned);
-      return res.status(500).json({ message: "Could not understand AI response. Please try again." });
+      console.error("No JSON found:", cleaned);
+      return res.status(500).json({ message: "Could not parse AI response. Please try again." });
     }
 
     const aiData = JSON.parse(cleaned.substring(start, end + 1));

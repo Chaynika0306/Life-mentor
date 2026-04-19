@@ -3321,3 +3321,194 @@ body.dark-mode .dark-toggle {
   color: #d8ede8;
   background: #1e3028;
 }
+
+/* ─── DARK MODE CRITICAL FIXES ───────────────────────── */
+
+/* Profile page badges — text was invisible */
+body.dark-mode .badge {
+  background: #2a4038 !important;
+  color: #b8ddd4 !important;
+}
+
+body.dark-mode .profile-specialization {
+  color: #90b8ae !important;
+}
+
+body.dark-mode .profile-avatar {
+  background: #6aab99 !important;
+  color: #ffffff !important;
+}
+
+body.dark-mode .profile-header-card {
+  background: #1e3028 !important;
+}
+
+body.dark-mode .profile-header-info h1 {
+  color: #7abfaf !important;
+}
+
+/* Certificate card */
+body.dark-mode .cert-card {
+  box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+}
+
+body.dark-mode .cert-title {
+  background: #243830 !important;
+  color: #b8ddd4 !important;
+}
+
+/* Blog cards — force readable text in dark mode */
+body.dark-mode .blog-card {
+  filter: brightness(0.75) !important;
+}
+
+body.dark-mode .blog-card .blog-card-title {
+  color: #1a2a24 !important;
+  font-weight: 700 !important;
+}
+
+body.dark-mode .blog-card .blog-card-excerpt {
+  color: #1a2a24 !important;
+}
+
+body.dark-mode .blog-card .blog-read-more {
+  color: #1a2a24 !important;
+  font-weight: 700 !important;
+}
+
+/* Blog modal in dark mode */
+body.dark-mode .blog-modal {
+  background: #1e3028 !important;
+}
+
+body.dark-mode .blog-modal h2 {
+  color: #7abfaf !important;
+}
+
+body.dark-mode .blog-modal p {
+  color: #b8ddd4 !important;
+}
+
+body.dark-mode .blog-modal-close {
+  background: #2a4038 !important;
+  color: #d8ede8 !important;
+}
+
+/* Footer dark mode text fixes */
+body.dark-mode .footer-brand-name {
+  color: #ffffff !important;
+}
+
+body.dark-mode .footer-tagline {
+  color: #7aab99 !important;
+}
+
+body.dark-mode .footer-col h3 {
+  color: #ffffff !important;
+  border-bottom-color: #2a4038 !important;
+}
+
+body.dark-mode .footer-link {
+  color: #7aab99 !important;
+}
+
+body.dark-mode .footer-link:hover {
+  color: #6aab99 !important;
+}
+
+body.dark-mode .footer-bottom {
+  border-top-color: #2a4038 !important;
+}
+
+body.dark-mode .footer-bottom p {
+  color: #4a6a5e !important;
+}
+
+/* Quick links in footer */
+body.dark-mode .footer-social svg {
+  color: #6aab99 !important;
+}
+
+/* CTA section dot buttons */
+body.dark-mode .cta-arrow {
+  background: #3a6050 !important;
+}
+
+body.dark-mode .cta-arrow:hover {
+  background: #6aab99 !important;
+}
+
+/* Testimonial section */
+body.dark-mode .testimonials-section h2 {
+  color: #c8ddd7 !important;
+}
+
+/* Navbar logo text dark mode */
+body.dark-mode .navbar span {
+  color: #7abfaf !important;
+}
+
+/* Input placeholders */
+body.dark-mode ::placeholder {
+  color: #5a8a78 !important;
+  opacity: 1;
+}
+
+/* Booking form select */
+body.dark-mode .book-session-box select {
+  background: #243830 !important;
+  border-color: #3a6050 !important;
+  color: #d8ede8 !important;
+}
+
+body.dark-mode .book-session-box input[type="date"] {
+  background: #243830 !important;
+  border-color: #3a6050 !important;
+  color: #d8ede8 !important;
+}
+
+/* Rate session stars */
+body.dark-mode .auth-page {
+  background: #1a2a24 !important;
+}
+
+body.dark-mode .rate-subtitle {
+  color: #7aab99 !important;
+}
+
+/* Dashboard notes button */
+body.dark-mode .notes-btn {
+  color: #6aab99 !important;
+  border-color: #3a6050 !important;
+}
+
+body.dark-mode .notes-btn:hover {
+  background: #6aab99 !important;
+  color: white !important;
+}
+
+/* Cancel appointment button */
+body.dark-mode .cancel-appt-btn {
+  color: #e05555 !important;
+  border-color: #e05555 !important;
+}
+
+/* Profile edit form */
+body.dark-mode .profile-edit-card h2 {
+  color: #7abfaf !important;
+}
+
+body.dark-mode .profile-section h2 {
+  color: #7abfaf !important;
+  border-bottom-color: #2a4038 !important;
+}
+
+body.dark-mode .cancel-btn {
+  color: #6aab99 !important;
+  border-color: #3a6050 !important;
+}
+
+body.dark-mode .cancel-btn:hover {
+  background: #6aab99 !important;
+  color: white !important;
+}

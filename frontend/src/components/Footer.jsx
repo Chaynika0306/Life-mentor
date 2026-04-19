@@ -1,4 +1,16 @@
+import { useNavigate } from "react-router-dom";
+import { getToken, logout } from "../utils/auth";
+
 function Footer() {
+  const navigate = useNavigate();
+  const token = getToken();
+
+  const handleLogout = () => {
+    logout();
+    navigate("/");
+    setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 100);
+  };
+
   return (
     <footer id="contact" className="footer">
       <div className="footer-inner">
@@ -27,7 +39,7 @@ function Footer() {
         <div className="footer-col">
           <h3>Follow Us</h3>
           <a
-            href="https://www.instagram.com/life_.mentor_"
+            href="https://www.instagram.com/YOUR_INSTAGRAM_HERE"
             target="_blank"
             rel="noopener noreferrer"
             className="footer-link footer-social"
@@ -40,7 +52,7 @@ function Footer() {
             Instagram
           </a>
           <a
-            href="https://www.youtube.com/@hrishabhadhikari1173"
+            href="https://www.youtube.com/@YOUR_YOUTUBE_HERE"
             target="_blank"
             rel="noopener noreferrer"
             className="footer-link footer-social"
@@ -56,9 +68,16 @@ function Footer() {
         <div className="footer-col">
           <h3>Quick Links</h3>
           <a href="/" className="footer-link">🏠 Home</a>
-          <a href="/profile" className="footer-link">👤 About Counsellor</a>
-          <a href="/services" className="footer-link">💼 Services</a>
           <a href="/login" className="footer-link">🔐 Login / Signup</a>
+          {token ? (
+            <a
+              onClick={handleLogout}
+              className="footer-link"
+              style={{ cursor: "pointer", color: "#e05555" }}
+            >
+              🚪 Logout
+            </a>
+          ) : null}
         </div>
 
       </div>
@@ -68,7 +87,6 @@ function Footer() {
         <p>© 2025 Life Mentor. All rights reserved.</p>
         <p>Made with ❤️ for mental wellness</p>
       </div>
-
     </footer>
   );
 }
