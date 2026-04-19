@@ -16,14 +16,14 @@ router.post("/checkin", protect, async (req, res) => {
       return res.status(500).json({ message: "AI service not configured." });
     }
 
-    console.log("✅ Calling Gemini API...");
+    console.log("✅ GEMINI_API_KEY found, calling API...");
 
     const prompt = `You are a compassionate life mentor on a mental health platform called Life Mentor.
 
 A user says: "${message}"
 
 Respond ONLY with this exact JSON (no markdown, no backticks, no extra text):
-{"mood":"stressed","support":"Your warm 2-3 sentence empathetic response here.","habit":"One simple daily habit suggestion.","affirmation":"One powerful positive affirmation.","task":"One small achievable task for today."}
+{"mood":"neutral","support":"Your warm 2-3 sentence empathetic response here.","habit":"One simple daily habit suggestion.","affirmation":"One powerful positive affirmation.","task":"One small achievable task for today."}
 
 Rules:
 - mood must be exactly one of: happy, sad, stressed, anxious, neutral, overwhelmed, lonely
@@ -31,15 +31,16 @@ Rules:
 - Be warm and non-judgmental
 - Output ONLY valid JSON, nothing else`;
 
-    // These are the confirmed working models on v1beta in 2026
+    // Try models in order — gemini-2.5-flash first (has separate quota)
     const models = [
       "gemini-2.5-flash",
+      "gemini-2.5-flash-lite-preview-06-17",
       "gemini-2.0-flash",
       "gemini-2.0-flash-lite",
     ];
 
     let text = null;
-    let lastError = null;
+    let quotaExceeded = false;
 
     for (const modelName of models) {
       try {
@@ -63,9 +64,13 @@ Rules:
         const data = await response.json();
 
         if (!response.ok) {
-          const errMsg = data?.error?.message || "Unknown error";
-          console.log(`❌ ${modelName}: ${errMsg}`);
-          lastError = errMsg;
+          const errMsg = data?.error?.message || "";
+          console.log(`❌ ${modelName}: ${errMsg.substring(0, 80)}`);
+
+          if (errMsg.includes("quota") || errMsg.includes("exceeded")) {
+            quotaExceeded = true;
+            continue; // try next model
+          }
           continue;
         }
 
@@ -73,45 +78,40 @@ Rules:
         if (candidate && candidate.trim()) {
           text = candidate.trim();
           console.log(`✅ Success: ${modelName}`);
+          quotaExceeded = false;
           break;
         }
       } catch (err) {
         console.log(`❌ ${modelName} error: ${err.message}`);
-        lastError = err.message;
       }
     }
 
     if (!text) {
-      console.error("All models failed. Last error:", lastError);
+      if (quotaExceeded) {
+        return res.status(429).json({
+          message: "AI daily limit reached. Please try again tomorrow or contact support. 🙏"
+        });
+      }
       return res.status(500).json({
         message: "AI is unavailable right now. Please try again in a few minutes."
       });
     }
 
-    // Clean response — remove markdown if any
-    let cleaned = text
-      .replace(/```json/gi, "")
-      .replace(/```/g, "")
-      .trim();
-
+    // Clean and parse
+    let cleaned = text.replace(/```json/gi, "").replace(/```/g, "").trim();
     const start = cleaned.indexOf("{");
     const end = cleaned.lastIndexOf("}");
 
     if (start === -1 || end === -1) {
-      console.error("No JSON in response:", cleaned);
       return res.status(500).json({ message: "Unexpected AI response. Please try again." });
     }
 
     const aiData = JSON.parse(cleaned.substring(start, end + 1));
-
     const validMoods = ["happy", "sad", "stressed", "anxious", "neutral", "overwhelmed", "lonely"];
     if (!validMoods.includes(aiData.mood)) aiData.mood = "neutral";
 
-    // Save to MongoDB
     await MoodEntry.create({
-      userId,
-      message,
-      mood: aiData.mood,
+      userId, message, mood: aiData.mood,
       aiResponse: {
         support: aiData.support || "",
         habit: aiData.habit || "",
@@ -139,8 +139,7 @@ Rules:
 router.get("/history", protect, async (req, res) => {
   try {
     const entries = await MoodEntry.find({ userId: req.user.id })
-      .sort({ createdAt: -1 })
-      .limit(7);
+      .sort({ createdAt: -1 }).limit(7);
     res.json(entries);
   } catch (err) {
     res.status(500).json({ message: "Failed to fetch history" });
