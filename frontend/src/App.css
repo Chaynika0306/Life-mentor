@@ -3512,3 +3512,59 @@ body.dark-mode .cancel-btn:hover {
   background: #6aab99 !important;
   color: white !important;
 }
+
+/* ─── FORGOT PASSWORD ────────────────────────────────── */
+.forgot-password-link {
+  text-align: center;
+  margin-top: 12px;
+  font-size: 13px;
+  color: #6aab99;
+  cursor: pointer;
+  font-weight: 600;
+  transition: color 0.2s;
+}
+
+.forgot-password-link:hover {
+  color: #4e9080;
+  text-decoration: underline;
+}
+
+.fp-icon {
+  font-size: 48px;
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.fp-subtitle {
+  font-size: 14px;
+  color: #6a8a80;
+  text-align: center;
+  line-height: 1.7;
+  margin-bottom: 20px;
+}
+
+.fp-success {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+/* OTP input special styling */
+.auth-form input[maxlength="6"] {
+  letter-spacing: 8px;
+  text-align: center;
+  font-size: 22px !important;
+  font-weight: 700;
+  color: #2c6e5a !important;
+}
+
+/* Dark mode forgot password */
+body.dark-mode .forgot-password-link {
+  color: #6aab99 !important;
+}
+
+body.dark-mode .fp-subtitle {
+  color: #90b8ae !important;
+}
