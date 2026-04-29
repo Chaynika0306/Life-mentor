@@ -120,23 +120,32 @@ function AICoach() {
                   {msg.text && <p>{msg.text}</p>}
                   {msg.support && (
                     <div className="ai-response-card" style={{ background: moodColor[msg.mood] || "#d8ede8" }}>
-                      <div className="ai-mood-badge">{moodEmoji[msg.mood]} Detected mood: <strong>{msg.mood}</strong></div>
-                      <p className="ai-support">{msg.support}</p>
+                      <div className="ai-mood-badge" style={{ color: "#1a2a24" }}>{moodEmoji[msg.mood]} Detected mood: <strong>{msg.mood}</strong></div>
+                      <p className="ai-support" style={{ color: "#1a2a24" }}>{msg.support}</p>
                       <div className="ai-suggestions">
-                        <div className="ai-suggestion-item">
+                        <div className="ai-suggestion-item" style={{ background: "rgba(255,255,255,0.6)" }}>
                           <span className="ai-suggestion-icon">🌿</span>
-                          <div><p className="ai-suggestion-label">Today's Habit</p><p>{msg.habit}</p></div>
+                          <div>
+                            <p className="ai-suggestion-label" style={{ color: "#2c6e5a" }}>Today's Habit</p>
+                            <p style={{ color: "#1a2a24" }}>{msg.habit}</p>
+                          </div>
                         </div>
-                        <div className="ai-suggestion-item">
+                        <div className="ai-suggestion-item" style={{ background: "rgba(255,255,255,0.6)" }}>
                           <span className="ai-suggestion-icon">✨</span>
-                          <div><p className="ai-suggestion-label">Affirmation</p><p>"{msg.affirmation}"</p></div>
+                          <div>
+                            <p className="ai-suggestion-label" style={{ color: "#2c6e5a" }}>Affirmation</p>
+                            <p style={{ color: "#1a2a24" }}>"{msg.affirmation}"</p>
+                          </div>
                         </div>
-                        <div className="ai-suggestion-item">
+                        <div className="ai-suggestion-item" style={{ background: "rgba(255,255,255,0.6)" }}>
                           <span className="ai-suggestion-icon">✅</span>
-                          <div><p className="ai-suggestion-label">Small Task</p><p>{msg.task}</p></div>
+                          <div>
+                            <p className="ai-suggestion-label" style={{ color: "#2c6e5a" }}>Small Task</p>
+                            <p style={{ color: "#1a2a24" }}>{msg.task}</p>
+                          </div>
                         </div>
                       </div>
-                      <p className="ai-counsellor-note">
+                      <p className="ai-counsellor-note" style={{ color: "#2c4a3a", borderTopColor: "rgba(44,110,90,0.2)" }}>
                         💚 Need deeper support?{" "}
                         <span className="ai-book-link" onClick={() => navigate("/book-session")}>Book a session →</span>
                       </p>
