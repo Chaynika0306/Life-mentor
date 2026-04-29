@@ -3568,3 +3568,164 @@ body.dark-mode .forgot-password-link {
 body.dark-mode .fp-subtitle {
   color: #90b8ae !important;
 }
+
+/* ─── DARK MODE MOBILE NAV FIX ───────────────────────── */
+body.dark-mode .nav-links {
+  background: #1e3028 !important;
+  border-top-color: #2a4038 !important;
+}
+
+body.dark-mode .nav-links a {
+  color: #b8ddd4 !important;
+  border-bottom-color: #2a4038 !important;
+}
+
+body.dark-mode .nav-links a:hover {
+  color: #6aab99 !important;
+}
+
+body.dark-mode .hamburger .ham-line {
+  background: #7abfaf !important;
+}
+
+body.dark-mode .navbar {
+  background: #1e3028 !important;
+}
+
+/* ─── RESOURCE MODAL MOBILE FIX ──────────────────────── */
+.blog-modal-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  background: #f0f0f0;
+  border: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  font-size: 16px;
+  cursor: pointer;
+  color: #2c3e35;
+  transition: background 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10001;
+  flex-shrink: 0;
+}
+
+.blog-modal-close:hover { background: #e0e0e0; }
+
+/* Ensure modal has relative positioning for close btn */
+.blog-modal {
+  position: relative;
+  padding-top: 50px !important; /* make room for close button */
+}
+
+/* On mobile specifically */
+@media (max-width: 768px) {
+  .blog-modal {
+    padding: 50px 20px 28px !important;
+    max-height: 88vh;
+    overflow-y: auto;
+    border-radius: 20px;
+  }
+
+  .blog-modal-close {
+    top: 12px;
+    right: 12px;
+    width: 36px;
+    height: 36px;
+    font-size: 15px;
+  }
+
+  .blog-modal-overlay {
+    padding: 16px;
+    align-items: flex-end;
+  }
+
+  .resource-modal-content {
+    max-height: 50vh;
+    overflow-y: auto;
+  }
+}
+
+/* ─── AI COACH DARK MODE FIX ─────────────────────────── */
+body.dark-mode .ai-response-card {
+  color: #1a2a24 !important;
+}
+
+body.dark-mode .ai-response-card .ai-mood-badge {
+  color: #1a2a24 !important;
+}
+
+body.dark-mode .ai-response-card .ai-support {
+  color: #1a2a24 !important;
+}
+
+body.dark-mode .ai-response-card .ai-suggestion-item {
+  background: rgba(255,255,255,0.5) !important;
+}
+
+body.dark-mode .ai-response-card .ai-suggestion-label {
+  color: #2c6e5a !important;
+}
+
+body.dark-mode .ai-response-card p {
+  color: #1a2a24 !important;
+}
+
+body.dark-mode .ai-response-card .ai-counsellor-note {
+  color: #2c4a3a !important;
+  border-top-color: rgba(44,110,90,0.3) !important;
+}
+
+body.dark-mode .ai-response-card .ai-book-link {
+  color: #2c6e5a !important;
+}
+
+/* AI chat bubble text in dark mode */
+body.dark-mode .ai-bubble.ai p {
+  color: #d8ede8 !important;
+}
+
+body.dark-mode .ai-bubble.user {
+  background: #4e9080 !important;
+}
+
+/* AI tab buttons dark mode */
+body.dark-mode .ai-tab-btn {
+  background: #1e3028 !important;
+  color: #b8ddd4 !important;
+  border-color: #3a6050 !important;
+}
+
+body.dark-mode .ai-tab-btn.active,
+body.dark-mode .ai-tab-btn:hover {
+  background: #6aab99 !important;
+  color: white !important;
+  border-color: #6aab99 !important;
+}
+
+/* AI input area */
+body.dark-mode .ai-input-row {
+  border-top-color: #2a4038 !important;
+}
+
+body.dark-mode .ai-hint {
+  color: #4a7a6a !important;
+}
+
+/* AI suggestion items text */
+body.dark-mode .ai-suggestion-item p {
+  color: #1a2a24 !important;
+}
+
+/* Resource modal dark mode close button */
+body.dark-mode .blog-modal-close {
+  background: #2a4038 !important;
+  color: #d8ede8 !important;
+}
+
+body.dark-mode .blog-modal-close:hover {
+  background: #3a6050 !important;
+}
