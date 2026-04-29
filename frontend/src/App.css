@@ -3729,3 +3729,54 @@ body.dark-mode .blog-modal-close {
 body.dark-mode .blog-modal-close:hover {
   background: #3a6050 !important;
 }
+
+/* ─── AI COACH RESPONSE CARD DARK MODE FINAL FIX ────── */
+/* The card itself has a light pastel background 
+   so ALL text inside must always be dark */
+.ai-response-card,
+.ai-response-card *,
+body.dark-mode .ai-response-card,
+body.dark-mode .ai-response-card * {
+  color: #1a2a24 !important;
+}
+
+body.dark-mode .ai-response-card .ai-suggestion-item {
+  background: rgba(255, 255, 255, 0.55) !important;
+}
+
+body.dark-mode .ai-response-card .ai-suggestion-label {
+  color: #2c6e5a !important;
+}
+
+body.dark-mode .ai-response-card .ai-counsellor-note {
+  border-top-color: rgba(44, 110, 90, 0.25) !important;
+}
+
+body.dark-mode .ai-response-card .ai-book-link {
+  color: #2c6e5a !important;
+  text-decoration: underline;
+}
+
+/* AI plain text bubble in dark mode */
+body.dark-mode .ai-bubble.ai {
+  background: #1e3028 !important;
+}
+
+body.dark-mode .ai-bubble.ai > p {
+  color: #d8ede8 !important;
+}
+
+/* AI typing dots */
+body.dark-mode .ai-typing span {
+  background: #6aab99 !important;
+}
+
+/* AI chat container background */
+body.dark-mode .ai-chat-container {
+  background: transparent;
+}
+
+/* AI messages area */
+body.dark-mode .ai-messages {
+  background: transparent;
+}
