@@ -1,8 +1,18 @@
 import { useNavigate } from "react-router-dom";
+import { getToken } from "../utils/auth";
 import "../App.css";
 
 function Hero() {
   const navigate = useNavigate();
+  const token = getToken();
+
+  const handleStartJourney = () => {
+    if (token) {
+      navigate("/book-session"); // logged in → book session
+    } else {
+      navigate("/login"); // new user → login/signup
+    }
+  };
 
   return (
     <section className="hero">
@@ -26,7 +36,7 @@ function Hero() {
         </p>
 
         <div className="hero-btns">
-          <button className="primary-btn" onClick={() => navigate("/login")}>
+          <button className="primary-btn" onClick={handleStartJourney}>
             Start Your Journey
           </button>
           <button className="secondary-btn" onClick={() => navigate("/services")}>
@@ -46,7 +56,7 @@ function Hero() {
           </div>
           <div className="stat-divider" />
           <div className="stat">
-            <span className="stat-num">8+</span>
+            <span className="stat-num">2+</span>
             <span className="stat-label">Years Experience</span>
           </div>
         </div>
