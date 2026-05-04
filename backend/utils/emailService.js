@@ -1,10 +1,22 @@
-const { Resend } = require("resend");
-const resend = new Resend(process.env.RESEND_API_KEY);
+const nodemailer = require("nodemailer");
+
+const transporter = nodemailer.createTransport({
+  host: "smtp.gmail.com",
+  port: 465,
+  secure: true,
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+  tls: {
+    rejectUnauthorized: false,
+  },
+});
 
 exports.sendBookingEmail = async (to, name, date, time) => {
   try {
-    const result = await resend.emails.send({
-      from: "Life Mentor <onboarding@resend.dev>",
+    await transporter.sendMail({
+      from: `"Life Mentor" <${process.env.EMAIL_USER}>`,
       to,
       subject: "Session Booking Confirmation — Life Mentor",
       html: `
@@ -21,7 +33,7 @@ exports.sendBookingEmail = async (to, name, date, time) => {
         </div>
       `,
     });
-    console.log("✅ Booking email sent to:", to, result);
+    console.log("✅ Booking email sent to:", to);
   } catch (err) {
     console.error("❌ Booking email error:", err.message);
   }
