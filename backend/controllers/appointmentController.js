@@ -1,5 +1,5 @@
 const Appointment = require("../models/Appointment");
-const sendEmail = require("../utils/email");
+const { sendHtmlEmail } = require("../utils/email");
 const { sendNotificationToUser, sendNotificationToCounsellor } = require("../utils/pushNotification");
 const User = require("../models/User");
 

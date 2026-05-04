@@ -1,6 +1,6 @@
-const { sendEmail, sendBookingEmail } = require("./emailService");
+const { sendEmail, sendHtmlEmail } = require("./emailService");
 
 module.exports = {
   sendEmail,
-  sendBookingEmail,
+  sendHtmlEmail,
 };
