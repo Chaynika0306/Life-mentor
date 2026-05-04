@@ -74,7 +74,7 @@ function DashboardHome() {
             )}
 
             {/* LOGOUT */}
-            <button className="logout-btn" onClick={() => { logout(); navigate("/login"); }}>
+            <button className="logout-btn" onClick={() => { logout(); navigate("/"); setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 100); }}>
               Logout
             </button>
 
