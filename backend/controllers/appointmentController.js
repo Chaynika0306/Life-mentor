@@ -34,7 +34,7 @@ exports.createAppointment = async (req, res) => {
     res.status(201).json(appointment);
 
     // 📧 Email to COUNSELLOR (background)
-    sendEmail(
+    sendHtmlEmail(
       "hrishabhadhikari@gmail.com",
       "📅 New Session Booked — Life Mentor",
       "",
@@ -107,7 +107,7 @@ exports.updateAppointmentStatus = async (req, res) => {
 
     // 📧 Email to CLIENT when confirmed (background)
     if (appointment.status === "Confirmed") {
-      sendEmail(
+      sendHtmlEmail(
         appointment.clientEmail,
         "✅ Your Session is Confirmed — Life Mentor",
         "",
