@@ -1,5 +1,5 @@
 const Appointment = require("../models/Appointment");
-const { sendHtmlEmail } = require("../utils/email");
+const sendEmail = require("../utils/email");
 const { sendNotificationToUser, sendNotificationToCounsellor } = require("../utils/pushNotification");
 const User = require("../models/User");
 
@@ -34,7 +34,7 @@ exports.createAppointment = async (req, res) => {
     res.status(201).json(appointment);
 
     // 📧 Email to COUNSELLOR (background)
-    sendHtmlEmail(
+    sendEmail(
       "hrishabhadhikari@gmail.com",
       "📅 New Session Booked — Life Mentor",
       "",
@@ -107,7 +107,7 @@ exports.updateAppointmentStatus = async (req, res) => {
 
     // 📧 Email to CLIENT when confirmed (background)
     if (appointment.status === "Confirmed") {
-      sendHtmlEmail(
+      sendEmail(
         appointment.clientEmail,
         "✅ Your Session is Confirmed — Life Mentor",
         "",
