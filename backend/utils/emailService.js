@@ -10,7 +10,7 @@ const transporter = nodemailer.createTransport({
 
 exports.sendBookingEmail = async (to, name, date, time) => {
   await transporter.sendMail({
-    from: `"MyMento" <${process.env.EMAIL_USER}>`,
+    from: `"LifeMentor0306" <${process.env.EMAIL_USER}>`,
     to,
     subject: "Session Booking Confirmation",
     html: `
