@@ -8,7 +8,7 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-exports.sendBookingEmail = async (to, name, date, time) => {
+const sendBookingEmail = async (to, name, date, time) => {
   await transporter.sendMail({
     from: `"LifeMentor0306" <${process.env.EMAIL_USER}>`,
     to,
@@ -24,3 +24,5 @@ exports.sendBookingEmail = async (to, name, date, time) => {
     `,
   });
 };
+
+module.exports = { sendBookingEmail };
