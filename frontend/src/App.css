@@ -3741,7 +3741,15 @@ body.dark-mode .ai-response-card * {
 }
 
 body.dark-mode .ai-response-card .ai-suggestion-item {
-  background: rgba(255, 255, 255, 0.55) !important;
+  background: rgba(255, 255, 255, 0.75) !important;
+}
+
+body.dark-mode .ai-response-card .ai-suggestion-item p,
+body.dark-mode .ai-response-card .ai-suggestion-item div,
+body.dark-mode .ai-response-card .ai-suggestion-item span {
+  color: #1a2a24 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
 }
 
 body.dark-mode .ai-response-card .ai-suggestion-label {
@@ -3779,4 +3787,19 @@ body.dark-mode .ai-chat-container {
 /* AI messages area */
 body.dark-mode .ai-messages {
   background: transparent;
+}
+
+/* ─── AI SUGGESTION ITEM TEXT FORCE FIX ─────────────── */
+.ai-suggestion-item > div > p {
+  color: #1a2a24;
+}
+
+body.dark-mode .ai-suggestion-item > div > p {
+  color: #1a2a24 !important;
+  opacity: 1 !important;
+}
+
+body.dark-mode .ai-suggestion-item > div > .ai-suggestion-label {
+  color: #2c6e5a !important;
+  opacity: 1 !important;
 }
