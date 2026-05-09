@@ -14,17 +14,26 @@ const createTransporter = async () => {
     refresh_token: process.env.GMAIL_REFRESH_TOKEN,
   });
 
-  const accessToken = await oauth2Client.getAccessToken();
+  const accessTokenResponse = await oauth2Client.getAccessToken();
+
+  if (!accessTokenResponse?.token) {
+    throw new Error(
+      "Failed to retrieve access token — check refresh token or OAuth credentials"
+    );
+  }
+
+  console.log("✅ Access token fetched successfully");
 
   const transporter = nodemailer.createTransport({
     service: "gmail",
+    family: 4, // Force IPv4 to avoid connection timeout
     auth: {
       type: "OAuth2",
       user: process.env.EMAIL_USER,
       clientId: process.env.GMAIL_CLIENT_ID,
       clientSecret: process.env.GMAIL_CLIENT_SECRET,
       refreshToken: process.env.GMAIL_REFRESH_TOKEN,
-      accessToken: accessToken.token,
+      accessToken: accessTokenResponse.token,
     },
   });
 
