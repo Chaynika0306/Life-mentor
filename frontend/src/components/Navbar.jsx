@@ -1,19 +1,21 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getToken, logout } from "../utils/auth";
+import { getToken, getUser, logout } from "../utils/auth";
 import DarkModeToggle from "./DarkModeToggle";
+import NotificationBell from "./NotificationBell";
 
 function Navbar() {
   const navigate = useNavigate();
   const token = getToken();
+  const user = getUser();
   const [menuOpen, setMenuOpen] = useState(false);
 
   const handleHome = () => {
     setMenuOpen(false);
     if (token) {
-      navigate("/dashboard-home");       // logged in → dashboard
+      navigate("/dashboard-home");
     } else {
-      navigate("/login");                // new user → login/signup
+      navigate("/login");
     }
   };
 
@@ -29,7 +31,7 @@ function Navbar() {
   return (
     <nav className="navbar">
 
-      {/* LOGO — always goes to landing page */}
+      {/* LOGO */}
       <div
         onClick={() => { navigate("/"); window.scrollTo({ top: 0, behavior: "smooth" }); }}
         style={{ cursor: "pointer", display: "flex", alignItems: "center", gap: "10px" }}
@@ -66,6 +68,13 @@ function Navbar() {
             About Counsellor
           </a>
         </li>
+
+        {/* 🔔 Notification Bell — only shown when logged in */}
+        {token && user && (
+          <li>
+            <NotificationBell token={token} userId={user._id} />
+          </li>
+        )}
 
         {token && (
           <li>

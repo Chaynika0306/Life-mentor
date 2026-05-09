@@ -13,6 +13,58 @@ function Footer() {
 
   return (
     <footer id="contact" className="footer">
+
+      {/* ── AI DISCLAIMER BANNER ─────────────────────────────────────────── */}
+      <div style={{
+        background: "rgba(255,255,255,0.05)",
+        borderTop: "1px solid rgba(255,255,255,0.1)",
+        borderBottom: "1px solid rgba(255,255,255,0.1)",
+        padding: "20px 40px",
+        textAlign: "center",
+        maxWidth: "860px",
+        margin: "0 auto 10px auto",
+      }}>
+        <p style={{
+          fontSize: "13px",
+          color: "rgba(255,255,255,0.6)",
+          lineHeight: "1.8",
+          margin: 0,
+        }}>
+          <span style={{
+            display: "inline-block",
+            background: "rgba(106,171,153,0.2)",
+            border: "1px solid rgba(106,171,153,0.4)",
+            borderRadius: "20px",
+            padding: "2px 12px",
+            fontSize: "11px",
+            fontWeight: "700",
+            color: "#6aab99",
+            letterSpacing: "0.08em",
+            marginBottom: "10px",
+          }}>
+            🤖 AI DISCLAIMER
+          </span>
+          <br />
+          Our <strong style={{ color: "rgba(255,255,255,0.8)" }}>AI Life Coach</strong> is designed to provide <strong style={{ color: "rgba(255,255,255,0.8)" }}>general guidance and mood-based support</strong> — it is not a substitute for professional mental health care.
+          The AI offers generic responses to help you reflect and feel heard in the moment.{" "}
+          <span style={{ color: "#6aab99" }}>
+            For real, personalized advice and proper counselling, we strongly encourage you to{" "}
+            <span
+              onClick={() => navigate("/book")}
+              style={{
+                textDecoration: "underline",
+                cursor: "pointer",
+                fontWeight: "600",
+                color: "#a8d5c8",
+              }}
+            >
+              book a session with our counsellor
+            </span>
+            {" "}who will truly listen and guide you.
+          </span>
+        </p>
+      </div>
+
       <div className="footer-inner">
 
         {/* COL 1 - Brand */}
