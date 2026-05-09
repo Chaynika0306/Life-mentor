@@ -1,9 +1,25 @@
 const Appointment = require("../models/Appointment");
+const Notification = require("../models/Notification");
 const sendEmail = require("../utils/email");
 const { sendNotificationToUser, sendNotificationToCounsellor } = require("../utils/pushNotification");
+const { emitToUser, emitToCounsellor } = require("../socket");
 const User = require("../models/User");
 
-// ── CREATE APPOINTMENT ──────────────────────────────────
+// ── COUNSELLOR USER ID (set this in your .env) ──────────────────────────────
+// Add COUNSELLOR_USER_ID=<mongodb _id of counsellor> in your backend .env
+const COUNSELLOR_ID = process.env.COUNSELLOR_USER_ID;
+
+// ── Helper: Save notification to DB + emit via socket ───────────────────────
+const createAndEmitNotification = async (userId, title, message, type) => {
+  try {
+    const notification = await Notification.create({ userId, title, message, type });
+    emitToUser(userId, "new_notification", notification);
+  } catch (err) {
+    console.error("Notification error:", err.message);
+  }
+};
+
+// ── CREATE APPOINTMENT ──────────────────────────────────────────────────────
 exports.createAppointment = async (req, res) => {
   try {
     const { clientName, clientEmail, date, time } = req.body;
@@ -33,6 +49,16 @@ exports.createAppointment = async (req, res) => {
     // ✅ Send response immediately
     res.status(201).json(appointment);
 
+    // 🔔 In-app notification to COUNSELLOR
+    if (COUNSELLOR_ID) {
+      createAndEmitNotification(
+        COUNSELLOR_ID,
+        "📅 New Session Booked!",
+        `${clientName} has booked a session on ${date} at ${time}.`,
+        "booking"
+      );
+    }
+
     // 📧 Email to COUNSELLOR (background)
     sendEmail(
       "hrishabhadhikari@gmail.com",
@@ -55,7 +81,7 @@ exports.createAppointment = async (req, res) => {
       `
     ).catch(err => console.error("Counsellor email error:", err));
 
-    // 🔔 Push notification to counsellor
+    // 🔔 Push notification to counsellor (existing)
     sendNotificationToCounsellor(
       "📅 New Session Booked!",
       `${clientName} booked a session on ${date} at ${time}.`
@@ -70,7 +96,7 @@ exports.createAppointment = async (req, res) => {
   }
 };
 
-// ── GET ALL APPOINTMENTS (Counsellor) ───────────────────
+// ── GET ALL APPOINTMENTS (Counsellor) ───────────────────────────────────────
 exports.getAppointments = async (req, res) => {
   try {
     const appointments = await Appointment.find().sort({ createdAt: -1 });
@@ -81,7 +107,7 @@ exports.getAppointments = async (req, res) => {
   }
 };
 
-// ── DELETE APPOINTMENT ──────────────────────────────────
+// ── DELETE APPOINTMENT ───────────────────────────────────────────────────────
 exports.deleteAppointment = async (req, res) => {
   try {
     const appointment = await Appointment.findByIdAndDelete(req.params.id);
@@ -93,7 +119,7 @@ exports.deleteAppointment = async (req, res) => {
   }
 };
 
-// ── UPDATE STATUS (Confirm) ─────────────────────────────
+// ── UPDATE STATUS (Confirm) ──────────────────────────────────────────────────
 exports.updateAppointmentStatus = async (req, res) => {
   try {
     const appointment = await Appointment.findById(req.params.id);
@@ -105,8 +131,16 @@ exports.updateAppointmentStatus = async (req, res) => {
     // ✅ Send response immediately
     res.json({ message: "Status updated successfully" });
 
-    // 📧 Email to CLIENT when confirmed (background)
-    if (appointment.status === "Confirmed") {
+    // 🔔 In-app notification to CLIENT when confirmed
+    if (appointment.status === "Confirmed" && appointment.user) {
+      createAndEmitNotification(
+        appointment.user,
+        "✅ Session Confirmed!",
+        `Your session on ${appointment.date} at ${appointment.time} has been confirmed. See you soon! 💚`,
+        "confirmation"
+      );
+
+      // 📧 Email to CLIENT (background)
       sendEmail(
         appointment.clientEmail,
         "✅ Your Session is Confirmed — Life Mentor",
@@ -128,7 +162,7 @@ exports.updateAppointmentStatus = async (req, res) => {
         `
       ).catch(err => console.error("Client email error:", err));
 
-      // 🔔 Push notification to client
+      // 🔔 Push notification to client (existing)
       sendNotificationToUser(
         appointment.user,
         "✅ Session Confirmed!",
@@ -142,7 +176,7 @@ exports.updateAppointmentStatus = async (req, res) => {
   }
 };
 
-// ── GET USER'S APPOINTMENTS ─────────────────────────────
+// ── GET USER'S APPOINTMENTS ──────────────────────────────────────────────────
 exports.getMyAppointments = async (req, res) => {
   try {
     const appointments = await Appointment.find({ user: req.user._id }).sort({ createdAt: -1 });
@@ -153,7 +187,7 @@ exports.getMyAppointments = async (req, res) => {
   }
 };
 
-// ── GET BOOKED SLOTS BY DATE ────────────────────────────
+// ── GET BOOKED SLOTS BY DATE ─────────────────────────────────────────────────
 exports.getBookedSlots = async (req, res) => {
   try {
     const { date } = req.query;
@@ -167,7 +201,7 @@ exports.getBookedSlots = async (req, res) => {
   }
 };
 
-// ── CLIENT CANCEL OWN APPOINTMENT ──────────────────────
+// ── CLIENT CANCEL OWN APPOINTMENT ───────────────────────────────────────────
 exports.cancelAppointment = async (req, res) => {
   try {
     const appointment = await Appointment.findById(req.params.id);
@@ -183,6 +217,17 @@ exports.cancelAppointment = async (req, res) => {
 
     await Appointment.findByIdAndDelete(req.params.id);
 
+    // 🔔 In-app notification to COUNSELLOR on cancellation
+    if (COUNSELLOR_ID) {
+      createAndEmitNotification(
+        COUNSELLOR_ID,
+        "❌ Appointment Cancelled",
+        `${appointment.clientName} cancelled their session on ${appointment.date} at ${appointment.time}.`,
+        "cancellation"
+      );
+    }
+
+    // 🔔 Push notification to counsellor (existing)
     sendNotificationToCounsellor(
       "❌ Appointment Cancelled",
       `${appointment.clientName} cancelled their session on ${appointment.date} at ${appointment.time}.`

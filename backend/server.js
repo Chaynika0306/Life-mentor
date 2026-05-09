@@ -1,7 +1,9 @@
 require("dotenv").config();
 const express = require("express");
+const http = require("http"); // ✅ Required for Socket.io
 const mongoose = require("mongoose");
 const cors = require("cors");
+const { initSocket } = require("./socket"); // ✅ Socket.io init
 
 const authRoutes = require("./routes/authRoutes");
 const counsellorRoutes = require("./routes/counsellorRoutes");
@@ -14,6 +16,10 @@ const aiRoutes = require("./routes/aiRoutes");
 const sessionNoteRoutes = require("./routes/sessionNoteRoutes");
 
 const app = express();
+const server = http.createServer(app); // ✅ Wrap express in http server
+
+// ✅ Initialize Socket.io
+initSocket(server);
 
 app.use(cors({
   origin: "https://life-mentor-beryl.vercel.app",
@@ -53,6 +59,8 @@ app.use("/api/ai", aiRoutes);
 app.use("/api/session-notes", sessionNoteRoutes);
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
+
+// ✅ Use server.listen instead of app.listen
+server.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });
