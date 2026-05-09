@@ -14,27 +14,35 @@ const createGmailClient = async () => {
   return google.gmail({ version: "v1", auth: oauth2Client });
 };
 
+// ✅ Encodes subject to support emojis and special characters
+const encodeSubject = (subject) => {
+  return `=?UTF-8?B?${Buffer.from(subject).toString("base64")}?=`;
+};
+
 const buildRawEmail = (to, from, subject, bodyText, bodyHtml) => {
   const boundary = "boundary_lifementor";
+  const encodedSubject = encodeSubject(subject);
   let message;
 
   if (bodyHtml) {
     message = [
       `From: "Life Mentor" <${from}>`,
       `To: ${to}`,
-      `Subject: ${subject}`,
+      `Subject: ${encodedSubject}`,
       `MIME-Version: 1.0`,
       `Content-Type: multipart/alternative; boundary="${boundary}"`,
       ``,
       `--${boundary}`,
       `Content-Type: text/plain; charset="UTF-8"`,
+      `Content-Transfer-Encoding: base64`,
       ``,
-      bodyText || "",
+      Buffer.from(bodyText || "").toString("base64"),
       ``,
       `--${boundary}`,
       `Content-Type: text/html; charset="UTF-8"`,
+      `Content-Transfer-Encoding: base64`,
       ``,
-      bodyHtml,
+      Buffer.from(bodyHtml).toString("base64"),
       ``,
       `--${boundary}--`,
     ].join("\n");
@@ -42,11 +50,12 @@ const buildRawEmail = (to, from, subject, bodyText, bodyHtml) => {
     message = [
       `From: "Life Mentor" <${from}>`,
       `To: ${to}`,
-      `Subject: ${subject}`,
+      `Subject: ${encodedSubject}`,
       `MIME-Version: 1.0`,
       `Content-Type: text/plain; charset="UTF-8"`,
+      `Content-Transfer-Encoding: base64`,
       ``,
-      bodyText,
+      Buffer.from(bodyText || "").toString("base64"),
     ].join("\n");
   }
 
