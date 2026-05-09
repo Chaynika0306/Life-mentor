@@ -20,7 +20,7 @@ exports.signup = async (req, res) => {
       email,
       password: hashedPassword,
       role:
-        email === "hrishabhadhikari@gmail.com"
+        email === process.env.COUNSELLOR_EMAIL
           ? "counsellor"
           : "client",
     });
