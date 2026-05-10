@@ -3679,8 +3679,11 @@ body.dark-mode .ai-response-card p {
   border-top-color: rgba(44,110,90,0.3) !important;
 }*/
 
-body.dark-mode .ai-response-card .ai-counsellor-note {
+.ai-counsellor-note {
+  font-size: 12px;
   color: #1a2a24 !important;
+  font-weight: 500 !important;
+  opacity: 1 !important;
 }
 
 body.dark-mode .ai-response-card .ai-book-link {
