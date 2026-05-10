@@ -3752,6 +3752,10 @@ body.dark-mode .ai-response-card .ai-suggestion-item span {
   visibility: visible !important;
 }
 
+body.dark-mode .ai-support{
+  color: #2c3e35 important;
+}
+
 body.dark-mode .ai-response-card .ai-suggestion-label {
   color: #2c6e5a !important;
 }
