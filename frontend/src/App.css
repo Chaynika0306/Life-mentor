@@ -3763,8 +3763,11 @@ body.dark-mode .ai-response-card .ai-suggestion-label {
   color: #2c6e5a !important;
 }
 
-body.dark-mode .ai-response-card .ai-counsellor-note {
-  border-top-color: rgba(44, 110, 90, 0.25) !important;
+.ai-counsellor-note {
+  font-size: 12px;
+  color: #1a2a24 !important;
+  font-weight: 500 !important;
+  opacity: 1 !important;
 }
 
 .ai-response-card .ai-support { 
