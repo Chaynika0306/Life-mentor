@@ -3674,9 +3674,13 @@ body.dark-mode .ai-response-card p {
   color: #1a2a24 !important;
 }
 
-body.dark-mode .ai-response-card .ai-counsellor-note {
+/*body.dark-mode .ai-response-card .ai-counsellor-note {
   color: #2c4a3a !important;
   border-top-color: rgba(44,110,90,0.3) !important;
+}*/
+
+body.dark-mode .ai-response-card .ai-counsellor-note {
+  color: #1a2a24 !important;
 }
 
 body.dark-mode .ai-response-card .ai-book-link {
