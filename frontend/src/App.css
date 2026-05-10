@@ -3752,8 +3752,11 @@ body.dark-mode .ai-response-card .ai-suggestion-item span {
   visibility: visible !important;
 }
 
-body.dark-mode .ai-support{
-  color: #2c3e35 important;
+body.dark-mode .ai-response-card .ai-support,
+body.dark-mode .ai-response-card p.ai-support {
+  color: #1a2a24 !important;
+  font-weight: 500 !important;
+  opacity: 1 !important;
 }
 
 body.dark-mode .ai-response-card .ai-suggestion-label {
@@ -3762,6 +3765,12 @@ body.dark-mode .ai-response-card .ai-suggestion-label {
 
 body.dark-mode .ai-response-card .ai-counsellor-note {
   border-top-color: rgba(44, 110, 90, 0.25) !important;
+}
+
+.ai-response-card .ai-support { 
+  color: #1a2a24 !important; 
+  font-weight: 500 !important;
+  opacity: 1 !important;
 }
 
 body.dark-mode .ai-response-card .ai-book-link {
