@@ -8,28 +8,43 @@ const BACKEND = "https://life-mentor-backend.onrender.com";
 
 const moodEmoji = {
   happy: "😊", sad: "😢", stressed: "😰",
-  anxious: "😟", neutral: "😐", overwhelmed: "😫", lonely: "🥺",
+  anxious: "😟", neutral: "😐", overwhelmed: "😫", lonely: "🥺", angry: "😠",
 };
 
 const moodColor = {
   happy: "#b8ddd4", sad: "#c4bdd6", stressed: "#f4c2c2",
-  anxious: "#e8d9b0", neutral: "#d8ede8", overwhelmed: "#f4c2c2", lonely: "#c4bdd6",
+  anxious: "#e8d9b0", neutral: "#d8ede8", overwhelmed: "#f4c2c2",
+  lonely: "#c4bdd6", angry: "#f4c2c2",
 };
+
+// Quick mood buttons shown above input
+const moodButtons = [
+  { mood: "happy",      emoji: "😊", label: "Happy" },
+  { mood: "sad",        emoji: "😢", label: "Sad" },
+  { mood: "anxious",    emoji: "😟", label: "Anxious" },
+  { mood: "stressed",   emoji: "😰", label: "Stressed" },
+  { mood: "overwhelmed",emoji: "😫", label: "Overwhelmed" },
+  { mood: "lonely",     emoji: "🥺", label: "Lonely" },
+  { mood: "angry",      emoji: "😠", label: "Angry" },
+  { mood: "neutral",    emoji: "😐", label: "Neutral" },
+];
 
 function AICoach() {
   const navigate = useNavigate();
   const token = getToken();
   const user = getUser();
-  const [tab, setTab] = useState("chat"); // chat | history | graph
+  const [tab, setTab] = useState("chat");
   const [messages, setMessages] = useState([
     {
       from: "ai",
-      text: `Hello ${user?.name?.split(" ")[0] || "there"} 👋 I'm your Life Mentor AI Coach. How are you feeling today? You can share anything — I'm here to listen. 💚`,
+      type: "conversational",
+      text: `Hello ${user?.name?.split(" ")[0] || "there"} 👋 I'm your Life Mentor AI Coach. How are you feeling today? You can type how you feel or pick a mood below. I'm here to listen. 💚`,
     },
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [history, setHistory] = useState([]);
+  const [activeMood, setActiveMood] = useState(null);
   const bottomRef = useRef(null);
 
   useEffect(() => {
@@ -53,12 +68,14 @@ function AICoach() {
     }
   };
 
-  const handleSend = async () => {
-    if (!input.trim() || loading) return;
-    const userMsg = input.trim();
+  const sendMessage = async (messageText) => {
+    if (!messageText.trim() || loading) return;
+    const userMsg = messageText.trim();
     setInput("");
+    setActiveMood(null);
     setMessages((prev) => [...prev, { from: "user", text: userMsg }]);
     setLoading(true);
+
     try {
       const res = await fetch(`${BACKEND}/api/ai/checkin`, {
         method: "POST",
@@ -69,20 +86,52 @@ function AICoach() {
         body: JSON.stringify({ message: userMsg }),
       });
       const data = await res.json();
+
       if (res.ok) {
-        setMessages((prev) => [...prev, {
-          from: "ai", mood: data.mood, support: data.support,
-          habit: data.habit, affirmation: data.affirmation, task: data.task,
-        }]);
-        fetchHistory();
+        if (data.type === "mood") {
+          // Full mood card response
+          setMessages((prev) => [...prev, {
+            from: "ai",
+            type: "mood",
+            mood: data.mood,
+            support: data.support,
+            habit: data.habit,
+            affirmation: data.affirmation,
+            task: data.task,
+          }]);
+          fetchHistory();
+        } else {
+          // Conversational or out_of_scope — plain text reply
+          setMessages((prev) => [...prev, {
+            from: "ai",
+            type: data.type || "conversational",
+            text: data.text,
+          }]);
+        }
       } else {
-        setMessages((prev) => [...prev, { from: "ai", text: data.message || "Something went wrong. Please try again." }]);
+        setMessages((prev) => [...prev, {
+          from: "ai",
+          type: "conversational",
+          text: data.message || "Something went wrong. Please try again.",
+        }]);
       }
     } catch {
-      setMessages((prev) => [...prev, { from: "ai", text: "I'm having trouble connecting right now. Please try again in a moment. 🙏" }]);
+      setMessages((prev) => [...prev, {
+        from: "ai",
+        type: "conversational",
+        text: "I'm having trouble connecting right now. Please try again in a moment. 🙏",
+      }]);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSend = () => sendMessage(input);
+
+  // When user clicks a mood button
+  const handleMoodButton = (mood, label) => {
+    setActiveMood(mood);
+    sendMessage(`I am feeling ${label.toLowerCase()} today`);
   };
 
   const handleKeyDown = (e) => {
@@ -117,46 +166,71 @@ function AICoach() {
               <div key={i} className={`ai-message-row ${msg.from}`}>
                 {msg.from === "ai" && <div className="ai-bubble-avatar">🧠</div>}
                 <div className={`ai-bubble ${msg.from}`}>
+
+                  {/* Plain text message (conversational / out_of_scope / greeting) */}
                   {msg.text && <p>{msg.text}</p>}
-                  {msg.support && (
+
+                  {/* Out of scope — show book session link */}
+                  {msg.type === "out_of_scope" && (
+                    <p style={{ marginTop: "10px" }}>
+                      <span
+                        className="ai-book-link"
+                        onClick={() => navigate("/book-session")}
+                        style={{ color: "#6aab99", fontWeight: 700, cursor: "pointer", textDecoration: "underline" }}
+                      >
+                        📅 Book a session with our counsellor →
+                      </span>
+                    </p>
+                  )}
+
+                  {/* Full mood card */}
+                  {msg.type === "mood" && msg.support && (
                     <div className="ai-response-card" style={{ background: moodColor[msg.mood] || "#d8ede8" }}>
-                      <div className="ai-mood-badge" style={{ color: "#1a2a24" }}>{moodEmoji[msg.mood]} Detected mood: <strong>{msg.mood}</strong></div>
-                      <p className="ai-support" style={{ color: "#1a2a24" }}>{msg.support}</p>
+                      <div className="ai-mood-badge">
+                        {moodEmoji[msg.mood]} Detected Mood: <strong>{msg.mood}</strong>
+                      </div>
+                      <p className="ai-support">{msg.support}</p>
                       <div className="ai-suggestions">
-                        <div className="ai-suggestion-item" style={{ background: "rgba(255,255,255,0.6)" }}>
+                        <div className="ai-suggestion-item">
                           <span className="ai-suggestion-icon">🌿</span>
                           <div>
-                            <p className="ai-suggestion-label" style={{ color: "#2c6e5a" }}>Today's Habit</p>
-                            <p style={{ color: "#1a2a24" }}>{msg.habit}</p>
+                            <p className="ai-suggestion-label">Today's Habit</p>
+                            <p>{msg.habit}</p>
                           </div>
                         </div>
-                        <div className="ai-suggestion-item" style={{ background: "rgba(255,255,255,0.6)" }}>
+                        <div className="ai-suggestion-item">
                           <span className="ai-suggestion-icon">✨</span>
                           <div>
-                            <p className="ai-suggestion-label" style={{ color: "#2c6e5a" }}>Affirmation</p>
-                            <p style={{ color: "#1a2a24" }}>"{msg.affirmation}"</p>
+                            <p className="ai-suggestion-label">Affirmation</p>
+                            <p>"{msg.affirmation}"</p>
                           </div>
                         </div>
-                        <div className="ai-suggestion-item" style={{ background: "rgba(255,255,255,0.6)" }}>
+                        <div className="ai-suggestion-item">
                           <span className="ai-suggestion-icon">✅</span>
                           <div>
-                            <p className="ai-suggestion-label" style={{ color: "#2c6e5a" }}>Small Task</p>
-                            <p style={{ color: "#1a2a24" }}>{msg.task}</p>
+                            <p className="ai-suggestion-label">Small Task</p>
+                            <p>{msg.task}</p>
                           </div>
                         </div>
                       </div>
-                      <p className="ai-counsellor-note" style={{ color: "#2c4a3a", borderTopColor: "rgba(44,110,90,0.2)" }}>
+                      <p className="ai-counsellor-note">
                         💚 Need deeper support?{" "}
-                        <span className="ai-book-link" onClick={() => navigate("/book-session")}>Book a session →</span>
+                        <span className="ai-book-link" onClick={() => navigate("/book-session")}>
+                          Book a session →
+                        </span>
                       </p>
                     </div>
                   )}
+
                 </div>
                 {msg.from === "user" && (
-                  <div className="ai-bubble-avatar user-avatar">{user?.name?.charAt(0).toUpperCase() || "U"}</div>
+                  <div className="ai-bubble-avatar user-avatar">
+                    {user?.name?.charAt(0).toUpperCase() || "U"}
+                  </div>
                 )}
               </div>
             ))}
+
             {loading && (
               <div className="ai-message-row ai">
                 <div className="ai-bubble-avatar">🧠</div>
@@ -167,10 +241,30 @@ function AICoach() {
             )}
             <div ref={bottomRef} />
           </div>
+
+          {/* ── MOOD QUICK BUTTONS ── */}
+          <div className="ai-mood-buttons">
+            <p className="ai-mood-buttons-label">How are you feeling?</p>
+            <div className="ai-mood-buttons-row">
+              {moodButtons.map(({ mood, emoji, label }) => (
+                <button
+                  key={mood}
+                  className={`ai-mood-btn ${activeMood === mood ? "active" : ""}`}
+                  onClick={() => handleMoodButton(mood, label)}
+                  disabled={loading}
+                >
+                  <span>{emoji}</span>
+                  <span>{label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* ── INPUT ROW ── */}
           <div className="ai-input-row">
             <textarea
               className="ai-input"
-              placeholder="How are you feeling today? Share anything..."
+              placeholder="Or type how you're feeling... share anything 💚"
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}

@@ -3,7 +3,7 @@ const router = express.Router();
 const { protect } = require("../middleware/authMiddleware");
 const MoodEntry = require("../models/MoodEntry");
 
-// ── MOOD DETECTION ──────────────────────────────────────
+// ── MOOD KEYWORDS ───────────────────────────────────────
 const moodKeywords = {
   happy: ["happy", "great", "amazing", "wonderful", "excited", "joy", "good", "fantastic", "blessed", "grateful", "love", "cheerful", "positive", "energetic", "proud", "content"],
   sad: ["sad", "cry", "crying", "tears", "depressed", "unhappy", "miserable", "heartbroken", "grief", "loss", "lonely", "alone", "hopeless", "empty", "broken"],
@@ -14,13 +14,72 @@ const moodKeywords = {
   angry: ["angry", "anger", "mad", "furious", "frustrated", "irritated", "annoyed", "rage", "upset", "hate", "fed up"],
 };
 
+// ── OUT OF SCOPE KEYWORDS ───────────────────────────────
+// If message contains these but NO mood keywords → it's out of scope
+const outOfScopeKeywords = [
+  "diet", "food", "nutrition", "meal", "recipe", "exercise", "workout", "gym",
+  "medicine", "medication", "drug", "tablet", "doctor", "hospital", "treatment",
+  "invest", "stock", "money", "finance", "loan", "tax", "business",
+  "code", "programming", "software", "app", "website", "technology",
+  "law", "legal", "court", "lawyer",
+  "weather", "news", "politics", "sports",
+  "astrology", "horoscope", "zodiac",
+];
+
+// ── CONVERSATIONAL / EMOTIONAL KEYWORDS ─────────────────
+// These are emotional conversation messages (NOT out of scope)
+const conversationalKeywords = [
+  "talk", "listen", "help me", "i need", "i feel", "feeling", "i am", "i'm",
+  "support", "understand", "hear me", "tell me", "what should", "how do i",
+  "cope", "deal", "manage", "handle", "better", "okay", "fine", "not okay",
+  "struggling", "hard", "difficult", "tough", "bad day", "good day",
+  "thank you", "thanks", "hi", "hello", "hey",
+];
+
 const detectMood = (message) => {
   const lower = message.toLowerCase();
   for (const [mood, keywords] of Object.entries(moodKeywords)) {
     if (keywords.some(kw => lower.includes(kw))) return mood;
   }
-  return "neutral";
+  return null; // null = no mood detected
 };
+
+const isOutOfScope = (message) => {
+  const lower = message.toLowerCase();
+  const hasMood = detectMood(message) !== null;
+  const hasConversation = conversationalKeywords.some(kw => lower.includes(kw));
+  const hasOutOfScope = outOfScopeKeywords.some(kw => lower.includes(kw));
+  // Only out of scope if: has oos keywords AND no mood AND no conversational intent
+  return hasOutOfScope && !hasMood && !hasConversation;
+};
+
+// ── CONVERSATIONAL RESPONSES ────────────────────────────
+const conversationalResponses = [
+  "I'm here with you. 💚 Take your time — there's no rush. What's on your mind?",
+  "I hear you, and I want you to know that what you're feeling matters. Can you tell me a little more about how you're doing?",
+  "Thank you for sharing that with me. 🌿 You're not alone in this. Would you like to tell me more about what's going on?",
+  "I'm listening. Sometimes just putting things into words helps. What's been weighing on you?",
+  "It takes courage to reach out, and I'm glad you did. 💙 How are you really feeling right now?",
+  "You matter, and your feelings matter. I'm here to listen without judgment — share whatever feels right.",
+];
+
+// ── GREETING RESPONSES ───────────────────────────────────
+const greetingKeywords = ["hi", "hello", "hey", "good morning", "good evening", "good afternoon", "hii", "helo"];
+
+const greetingResponses = [
+  "Hello! 💚 It's so good to see you here. How are you feeling today? I'm here to listen.",
+  "Hey there! 🌿 Welcome. How's your heart today? Share whatever's on your mind.",
+  "Hi! 😊 I'm so glad you're here. How are you feeling right now?",
+];
+
+// ── THANKS RESPONSES ─────────────────────────────────────
+const thanksKeywords = ["thank you", "thanks", "thank u", "thx", "thankyou"];
+
+const thanksResponses = [
+  "You're so welcome. 💚 Remember, I'm always here whenever you need to talk. Take care of yourself!",
+  "It means a lot that you reached out. 🌿 Please don't hesitate to come back anytime you need support.",
+  "Always here for you. 💙 Be kind to yourself today!",
+];
 
 // ── RESPONSE LIBRARY ────────────────────────────────────
 const responses = {
@@ -205,7 +264,34 @@ router.post("/checkin", protect, async (req, res) => {
 
     if (!message) return res.status(400).json({ message: "Message is required" });
 
-    const mood = detectMood(message);
+    const lower = message.toLowerCase().trim();
+
+    // ── 1. GREETING ──────────────────────────────────────
+    if (greetingKeywords.some(kw => lower === kw || lower.startsWith(kw))) {
+      return res.status(200).json({
+        type: "conversational",
+        text: getRandom(greetingResponses),
+      });
+    }
+
+    // ── 2. THANKS ────────────────────────────────────────
+    if (thanksKeywords.some(kw => lower.includes(kw))) {
+      return res.status(200).json({
+        type: "conversational",
+        text: getRandom(thanksResponses),
+      });
+    }
+
+    // ── 3. OUT OF SCOPE ──────────────────────────────────
+    if (isOutOfScope(message)) {
+      return res.status(200).json({
+        type: "out_of_scope",
+        text: "I appreciate you reaching out! 💚 I'm an emotional wellness AI Coach — I'm best equipped to support you with how you're feeling emotionally. For questions like this, I'd recommend speaking with a professional who can give you the right guidance. You can also book a session with our counsellor who would be happy to help you more personally. 🌿",
+      });
+    }
+
+    // ── 4. MOOD DETECTED ─────────────────────────────────
+    const mood = detectMood(message) || "neutral";
     const r = responses[mood] || responses.neutral;
 
     const support = r.support;
@@ -213,6 +299,18 @@ router.post("/checkin", protect, async (req, res) => {
     const affirmation = getRandom(r.affirmations);
     const task = getRandom(r.tasks);
 
+    // ── 5. CONVERSATIONAL (no clear mood but emotional) ──
+    const hasMoodMatch = detectMood(message) !== null;
+    const hasConversation = conversationalKeywords.some(kw => lower.includes(kw));
+
+    if (!hasMoodMatch && hasConversation) {
+      return res.status(200).json({
+        type: "conversational",
+        text: getRandom(conversationalResponses),
+      });
+    }
+
+    // ── 6. SAVE & RESPOND WITH MOOD CARD ─────────────────
     await MoodEntry.create({
       userId, message, mood,
       aiResponse: { support, habit, affirmation, task },
@@ -221,7 +319,10 @@ router.post("/checkin", protect, async (req, res) => {
 
     console.log(`✅ AI Coach response — mood: ${mood}`);
 
-    res.status(201).json({ mood, support, habit, affirmation, task, date: today });
+    res.status(201).json({
+      type: "mood",
+      mood, support, habit, affirmation, task, date: today,
+    });
 
   } catch (err) {
     console.error("AI checkin error:", err.message);

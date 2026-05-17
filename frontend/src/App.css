@@ -3826,3 +3826,84 @@ body.dark-mode .ai-suggestion-item > div > .ai-suggestion-label {
   color: #2c6e5a !important;
   opacity: 1 !important;
 }
+
+/* ─── AI MOOD QUICK BUTTONS ──────────────────────────── */
+.ai-mood-buttons {
+  padding: 10px 0 4px;
+  border-top: 1px solid #e0f0eb;
+}
+
+.ai-mood-buttons-label {
+  font-size: 12px;
+  color: #6aab99;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 8px;
+}
+
+.ai-mood-buttons-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.ai-mood-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1.5px solid #d0e8e0;
+  background: #f5faf8;
+  color: #2c6e5a;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.ai-mood-btn:hover {
+  background: #d8ede8;
+  border-color: #6aab99;
+  transform: translateY(-1px);
+}
+
+.ai-mood-btn.active {
+  background: #6aab99;
+  color: white;
+  border-color: #6aab99;
+}
+
+.ai-mood-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Dark mode */
+body.dark-mode .ai-mood-buttons {
+  border-top-color: #2a4038 !important;
+}
+
+body.dark-mode .ai-mood-buttons-label {
+  color: #6aab99 !important;
+}
+
+body.dark-mode .ai-mood-btn {
+  background: #1e3028 !important;
+  border-color: #3a6050 !important;
+  color: #b8ddd4 !important;
+}
+
+body.dark-mode .ai-mood-btn:hover {
+  background: #2a4038 !important;
+  border-color: #6aab99 !important;
+}
+
+body.dark-mode .ai-mood-btn.active {
+  background: #6aab99 !important;
+  color: white !important;
+  border-color: #6aab99 !important;
+}
