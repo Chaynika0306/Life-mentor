@@ -36,12 +36,35 @@ const conversationalKeywords = [
   "thank you", "thanks", "hi", "hello", "hey",
 ];
 
+const negationWords = ["not", "don't", "dont", "doesn't", "doesnt", "isn't", "isnt", "never", "no", "neither", "hardly", "barely"];
+
 const detectMood = (message) => {
   const lower = message.toLowerCase();
+  const words = lower.split(/\s+/);
+
   for (const [mood, keywords] of Object.entries(moodKeywords)) {
-    if (keywords.some(kw => lower.includes(kw))) return mood;
+    for (const kw of keywords) {
+      const idx = lower.indexOf(kw);
+      if (idx === -1) continue;
+
+      // Check if a negation word appears within 3 words before this keyword
+      const kwWordIndex = words.findIndex((w, i) =>
+        words.slice(i).join(" ").startsWith(kw)
+      );
+
+      const precedingWords = words.slice(Math.max(0, kwWordIndex - 3), kwWordIndex);
+      const isNegated = precedingWords.some(w => negationWords.includes(w));
+
+      if (!isNegated) return mood;
+    }
   }
-  return null; // null = no mood detected
+
+  // If message contains negation + positive words → likely sad/stressed
+  const hasNegation = negationWords.some(w => lower.includes(w));
+  const hasPositive = ["good", "great", "fine", "okay", "well", "happy"].some(w => lower.includes(w));
+  if (hasNegation && hasPositive) return "sad";
+
+  return null;
 };
 
 const isOutOfScope = (message) => {
