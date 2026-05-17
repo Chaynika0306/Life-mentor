@@ -12,7 +12,7 @@ const moodEntrySchema = new mongoose.Schema({
   },
   mood: {
     type: String,
-    enum: ["happy", "sad", "stressed", "anxious", "neutral", "overwhelmed", "lonely"],
+    enum: ["happy", "sad", "stressed", "anxious", "neutral", "overwhelmed", "lonely","angry"],
     default: "neutral",
   },
   aiResponse: {
