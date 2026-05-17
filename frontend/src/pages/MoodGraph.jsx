@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { getToken } from "../utils/auth";
 import {
-  LineChart, Line, XAxis, YAxis, CartesianGrid,
+  XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer, Area, AreaChart
 } from "recharts";
 import "../App.css";
@@ -15,12 +15,13 @@ const moodScore = {
   stressed: 2,
   overwhelmed: 1,
   lonely: 1,
+  angry: 1,
   sad: 1,
 };
 
 const moodEmoji = {
   happy: "😊", neutral: "😐", anxious: "😟",
-  stressed: "😰", overwhelmed: "😫", lonely: "🥺", sad: "😢",
+  stressed: "😰", overwhelmed: "😫", lonely: "🥺", sad: "😢", angry: "😠",
 };
 
 const CustomTooltip = ({ active, payload }) => {
@@ -28,15 +29,35 @@ const CustomTooltip = ({ active, payload }) => {
     const d = payload[0].payload;
     return (
       <div className="mood-tooltip">
-        <p className="mood-tooltip-date">{d.date}</p>
-        <p className="mood-tooltip-mood">
-          {moodEmoji[d.mood]} {d.mood}
+        <p className="mood-tooltip-date">{d.label}</p>
+        <p className="mood-tooltip-mood" style={{ textTransform: "capitalize" }}>
+          {moodEmoji[d.mood]} <strong>{d.mood}</strong>
         </p>
         <p className="mood-tooltip-msg">"{d.message}"</p>
       </div>
     );
   }
   return null;
+};
+
+// Format date+time for display: "May 17, 14:32"
+const formatLabel = (isoString) => {
+  if (!isoString) return "";
+  const d = new Date(isoString);
+  const month = d.toLocaleString("en", { month: "short" });
+  const day = d.getDate();
+  const hours = String(d.getHours()).padStart(2, "0");
+  const mins = String(d.getMinutes()).padStart(2, "0");
+  return `${month} ${day}, ${hours}:${mins}`;
+};
+
+// Short label for X-axis: "May 17"
+const formatShortLabel = (isoString) => {
+  if (!isoString) return "";
+  const d = new Date(isoString);
+  const month = d.toLocaleString("en", { month: "short" });
+  const day = d.getDate();
+  return `${month} ${day}`;
 };
 
 function MoodGraph() {
@@ -50,26 +71,35 @@ function MoodGraph() {
     })
       .then((r) => r.json())
       .then((entries) => {
-        const sorted = [...entries].reverse(); // oldest first
-        const graphData = sorted.map((e) => ({
-          date: e.date,
-          score: moodScore[e.mood] || 3,
+        // Sort oldest → newest using createdAt timestamp
+        const sorted = [...entries].sort(
+          (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
+        );
+
+        const graphData = sorted.map((e, index) => ({
+          // Use index as x key to avoid duplicate date overlap
+          index,
+          timestamp: e.createdAt,
+          label: formatLabel(e.createdAt),       // tooltip full label
+          xLabel: formatShortLabel(e.createdAt), // X-axis short label
+          score: moodScore[e.mood] ?? 3,
           mood: e.mood,
           message: e.message,
         }));
+
         setData(graphData);
         setLoading(false);
       })
       .catch(() => setLoading(false));
   }, []);
 
-  if (loading) return <p className="appt-empty">Loading mood data...</p>;
+  if (loading) return <p className="appt-empty">Loading mood data... 🌿</p>;
 
   if (data.length === 0)
     return (
       <div className="mood-graph-empty">
         <p>📊 No mood data yet.</p>
-        <p>Start your first AI check-in to see your mood graph here!</p>
+        <p>Start your first AI check-in to see your mood journey here!</p>
       </div>
     );
 
@@ -88,7 +118,7 @@ function MoodGraph() {
           <span className="mood-stat-label">Average Mood</span>
         </div>
         <div className="mood-stat-box">
-          <span className="mood-stat-num">{moodEmoji[latest?.mood]}</span>
+          <span className="mood-stat-num">{moodEmoji[latest?.mood] || "😐"}</span>
           <span className="mood-stat-label">Latest Mood</span>
         </div>
         <div className="mood-stat-box">
@@ -96,7 +126,7 @@ function MoodGraph() {
           <span className="mood-stat-label">Check-ins Done</span>
         </div>
         <div className="mood-stat-box">
-          <span className="mood-stat-num">{moodEmoji[best?.mood]}</span>
+          <span className="mood-stat-num">{moodEmoji[best?.mood] || "😊"}</span>
           <span className="mood-stat-label">Best Day</span>
         </div>
       </div>
@@ -104,7 +134,7 @@ function MoodGraph() {
       {/* Chart */}
       <div className="mood-chart-box">
         <h3>Your Mood Journey</h3>
-        <ResponsiveContainer width="100%" height={260}>
+        <ResponsiveContainer width="100%" height={280}>
           <AreaChart data={data} margin={{ top: 10, right: 20, left: -20, bottom: 0 }}>
             <defs>
               <linearGradient id="moodGradient" x1="0" y1="0" x2="0" y2="1">
@@ -113,18 +143,28 @@ function MoodGraph() {
               </linearGradient>
             </defs>
             <CartesianGrid strokeDasharray="3 3" stroke="#e0f0eb" />
+
+            {/* X-axis uses index as dataKey, displays xLabel */}
             <XAxis
-              dataKey="date"
+              dataKey="index"
               tick={{ fontSize: 11, fill: "#6a8a80" }}
-              tickFormatter={(v) => v.slice(5)} // show MM-DD
+              tickFormatter={(idx) => {
+                const entry = data[idx];
+                return entry ? entry.xLabel : "";
+              }}
+              interval={0}
+              minTickGap={20}
             />
+
             <YAxis
               domain={[0, 5]}
               ticks={[1, 2, 3, 4, 5]}
-              tick={{ fontSize: 11, fill: "#6a8a80" }}
+              tick={{ fontSize: 12, fill: "#6a8a80" }}
               tickFormatter={(v) => ["", "😢", "😰", "😐", "🙂", "😊"][v] || v}
             />
+
             <Tooltip content={<CustomTooltip />} />
+
             <Area
               type="monotone"
               dataKey="score"
@@ -138,7 +178,7 @@ function MoodGraph() {
         </ResponsiveContainer>
       </div>
 
-      {/* Mood scale legend */}
+      {/* Legend */}
       <div className="mood-legend">
         <span>😢 Low</span>
         <span>😰 Stressed</span>
